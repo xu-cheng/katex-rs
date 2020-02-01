@@ -86,10 +86,19 @@ pub struct Opts {
     /// Color used for invalid LaTeX.
     error_color: Option<String>,
     /// Collection of custom macros.
+    /// Read <https://katex.org/docs/options.html> for more information.
     macros: HashMap<String, String>,
     /// Specifies a minimum thickness, in ems.
     /// Read <https://katex.org/docs/options.html> for more information.
     min_rule_thickness: Option<f64>,
+    /// Max size for user-specified sizes.
+    /// If set to `None`, users can make elements and spaces arbitrarily large.
+    /// Read <https://katex.org/docs/options.html> for more information.
+    max_size: Option<Option<f64>>,
+    /// Limit the number of macro expansions to the specified number.
+    /// If set to `None`, the macro expander will try to fully expand as in LaTeX.
+    /// Read <https://katex.org/docs/options.html> for more information.
+    max_expand: Option<Option<i32>>,
 }
 
 impl Opts {
@@ -131,6 +140,21 @@ impl Into<JsValue> for Opts {
         opt.insert("macros".to_owned(), self.macros.into());
         if let Some(min_rule_thickness) = self.min_rule_thickness {
             opt.insert("minRuleThickness".to_owned(), min_rule_thickness.into());
+        }
+        if let Some(max_size) = self.max_size {
+            if let Some(max_size) = max_size {
+                opt.insert("maxSize".to_owned(), max_size.into());
+            }
+        }
+        if let Some(max_expand) = self.max_expand {
+            match max_expand {
+                Some(max_expand) => {
+                    opt.insert("maxExpand".to_owned(), max_expand.into());
+                }
+                None => {
+                    opt.insert("maxExpand".to_owned(), i32::max_value().into());
+                }
+            }
         }
         JsValue::Object(opt)
     }
