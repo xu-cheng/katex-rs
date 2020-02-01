@@ -12,7 +12,6 @@
 //! # Examples
 //!
 //! ```
-//! # use katex;
 //! let html = katex::render("E = mc^2").unwrap();
 //!
 //! let opts = katex::Opts::builder().display_mode(true).build().unwrap();
