@@ -69,30 +69,27 @@ fn init_katex() -> Result<JsContext> {
 ///
 /// Read <https://katex.org/docs/options.html> for more information.
 #[non_exhaustive]
-#[derive(Clone, Builder, Debug)]
-#[builder(setter(into))]
+#[derive(Clone, Builder, Debug, Default)]
+#[builder(default)]
+#[builder(setter(into, strip_option))]
 pub struct Opts {
-    /// Whether to render the math in the display mode. Default is `false`.
-    #[builder(default = "false")]
-    pub display_mode: bool,
-    /// KaTeX output type. Default is `OutputType::HtmlAndMathml`.
-    #[builder(default = "OutputType::HtmlAndMathml")]
-    pub output_type: OutputType,
-    /// Whether to have `\tags` rendered on the left instead of the right. Default is `false`.
-    #[builder(default = "false")]
-    pub leqno: bool,
-    /// Whether to make display math flush left. Default is `false`.
-    #[builder(default = "false")]
-    pub fleqn: bool,
-    /// Whether to let KaTeX throw a ParseError for invalid LaTeX. Default is `true`.
-    #[builder(default = "true")]
-    pub throw_on_error: bool,
-    /// Color used for invalid LaTeX. Default is `#cc0000`.
-    #[builder(default = "\"#cc0000\".to_owned()")]
-    pub error_color: String,
+    /// Whether to render the math in the display mode.
+    pub display_mode: Option<bool>,
+    /// KaTeX output type.
+    pub output_type: Option<OutputType>,
+    /// Whether to have `\tags` rendered on the left instead of the right.
+    pub leqno: Option<bool>,
+    /// Whether to make display math flush left.
+    pub fleqn: Option<bool>,
+    /// Whether to let KaTeX throw a ParseError for invalid LaTeX.
+    pub throw_on_error: Option<bool>,
+    /// Color used for invalid LaTeX.
+    pub error_color: Option<String>,
     /// Collection of custom macros.
-    #[builder(default = "HashMap::new()")]
     pub macros: HashMap<String, String>,
+    /// Specifies a minimum thickness, in ems.
+    /// Read <https://katex.org/docs/options.html> for more information.
+    pub min_rule_thickness: Option<f64>,
 }
 
 impl Opts {
@@ -102,30 +99,39 @@ impl Opts {
     }
 }
 
-impl Default for Opts {
-    fn default() -> Self {
-        Self::builder().build().unwrap()
-    }
-}
-
 impl Into<JsValue> for Opts {
     fn into(self) -> JsValue {
         let mut opt: HashMap<String, JsValue> = HashMap::new();
-        opt.insert("displayMode".to_owned(), self.display_mode.into());
-        opt.insert(
-            "output".to_owned(),
-            match self.output_type {
-                OutputType::Html => "html",
-                OutputType::Mathml => "mathml",
-                OutputType::HtmlAndMathml => "htmlAndMathml",
-            }
-            .into(),
-        );
-        opt.insert("leqno".to_owned(), self.leqno.into());
-        opt.insert("fleqn".to_owned(), self.fleqn.into());
-        opt.insert("throwOnError".to_owned(), self.throw_on_error.into());
-        opt.insert("errorColor".to_owned(), self.error_color.into());
+        if let Some(display_mode) = self.display_mode {
+            opt.insert("displayMode".to_owned(), display_mode.into());
+        }
+        if let Some(output_type) = self.output_type {
+            opt.insert(
+                "output".to_owned(),
+                match output_type {
+                    OutputType::Html => "html",
+                    OutputType::Mathml => "mathml",
+                    OutputType::HtmlAndMathml => "htmlAndMathml",
+                }
+                .into(),
+            );
+        }
+        if let Some(leqno) = self.leqno {
+            opt.insert("leqno".to_owned(), leqno.into());
+        }
+        if let Some(fleqn) = self.fleqn {
+            opt.insert("fleqn".to_owned(), fleqn.into());
+        }
+        if let Some(throw_on_error) = self.throw_on_error {
+            opt.insert("throwOnError".to_owned(), throw_on_error.into());
+        }
+        if let Some(error_color) = self.error_color {
+            opt.insert("errorColor".to_owned(), error_color.into());
+        }
         opt.insert("macros".to_owned(), self.macros.into());
+        if let Some(min_rule_thickness) = self.min_rule_thickness {
+            opt.insert("minRuleThickness".to_owned(), min_rule_thickness.into());
+        }
         JsValue::Object(opt)
     }
 }
@@ -154,7 +160,7 @@ pub enum OutputType {
     Html,
     /// Outputs KaTeX in MathML only.
     Mathml,
-    /// Outputs HTML for visual rendering and includes MathML for accessibility. This is the default.
+    /// Outputs HTML for visual rendering and includes MathML for accessibility.
     HtmlAndMathml,
 }
 
