@@ -74,6 +74,24 @@ pub struct Opts {
     /// Whether to render the math in the display mode. Default is `false`.
     #[builder(default = "false")]
     pub display_mode: bool,
+    /// KaTeX output type. Default is `OutputType::HtmlAndMathml`.
+    #[builder(default = "OutputType::HtmlAndMathml")]
+    pub output_type: OutputType,
+    /// Whether to have `\tags` rendered on the left instead of the right. Default is `false`.
+    #[builder(default = "false")]
+    pub leqno: bool,
+    /// Whether to make display math flush left. Default is `false`.
+    #[builder(default = "false")]
+    pub fleqn: bool,
+    /// Whether to let KaTeX throw a ParseError for invalid LaTeX. Default is `true`.
+    #[builder(default = "true")]
+    pub throw_on_error: bool,
+    /// Color used for invalid LaTeX. Default is `#cc0000`.
+    #[builder(default = "\"#cc0000\".to_owned()")]
+    pub error_color: String,
+    /// Collection of custom macros.
+    #[builder(default = "HashMap::new()")]
+    pub macros: HashMap<String, String>,
 }
 
 impl Opts {
@@ -93,8 +111,50 @@ impl Into<JsValue> for Opts {
     fn into(self) -> JsValue {
         let mut opt: HashMap<String, JsValue> = HashMap::new();
         opt.insert("displayMode".to_owned(), self.display_mode.into());
+        opt.insert(
+            "output".to_owned(),
+            match self.output_type {
+                OutputType::Html => "html",
+                OutputType::Mathml => "mathml",
+                OutputType::HtmlAndMathml => "htmlAndMathml",
+            }
+            .into(),
+        );
+        opt.insert("leqno".to_owned(), self.leqno.into());
+        opt.insert("fleqn".to_owned(), self.fleqn.into());
+        opt.insert("throwOnError".to_owned(), self.throw_on_error.into());
+        opt.insert("errorColor".to_owned(), self.error_color.into());
+        opt.insert("macros".to_owned(), self.macros.into());
         JsValue::Object(opt)
     }
+}
+
+impl OptsBuilder {
+    /// Add an entry to [`Opts::macros`].
+    pub fn add_macro(mut self, entry_name: String, entry_data: String) -> Self {
+        match self.macros.as_mut() {
+            Some(macros) => {
+                macros.insert(entry_name, entry_data);
+            }
+            None => {
+                let mut macros = HashMap::new();
+                macros.insert(entry_name, entry_data);
+                self.macros = Some(macros);
+            }
+        }
+        self
+    }
+}
+
+/// Output type from KaTeX.
+#[derive(Copy, Clone, Debug)]
+pub enum OutputType {
+    /// Outputs KaTeX in HTML only.
+    Html,
+    /// Outputs KaTeX in MathML only.
+    Mathml,
+    /// Outputs HTML for visual rendering and includes MathML for accessibility. This is the default.
+    HtmlAndMathml,
 }
 
 /// Render LaTeX equation to HTML with additional [options](`Opts`).
@@ -134,5 +194,83 @@ mod tests {
         let opts = Opts::builder().display_mode(true).build().unwrap();
         let html = render_with_opts("a = b + c", opts).unwrap();
         assert!(html.contains(r#"span class="katex-display""#));
+    }
+
+    #[test]
+    fn test_output_html_only() {
+        let opts = Opts::builder()
+            .output_type(OutputType::Html)
+            .build()
+            .unwrap();
+        let html = render_with_opts("a = b + c", opts).unwrap();
+        assert!(!html.contains(r#"span class="katex-mathml""#));
+        assert!(html.contains(r#"span class="katex-html""#));
+    }
+
+    #[test]
+    fn test_output_mathml_only() {
+        let opts = Opts::builder()
+            .output_type(OutputType::Mathml)
+            .build()
+            .unwrap();
+        let html = render_with_opts("a = b + c", opts).unwrap();
+        assert!(html.contains(r#"MathML"#));
+        assert!(!html.contains(r#"span class="katex-html""#));
+    }
+
+    #[test]
+    fn test_leqno() {
+        let opts = Opts::builder()
+            .display_mode(true)
+            .leqno(true)
+            .build()
+            .unwrap();
+        let html = render_with_opts("a = b + c", opts).unwrap();
+        assert!(html.contains(r#"span class="katex-display leqno""#));
+    }
+
+    #[test]
+    fn test_fleqn() {
+        let opts = Opts::builder()
+            .display_mode(true)
+            .fleqn(true)
+            .build()
+            .unwrap();
+        let html = render_with_opts("a = b + c", opts).unwrap();
+        assert!(html.contains(r#"span class="katex-display fleqn""#));
+    }
+
+    #[test]
+    fn test_throw_on_error() {
+        let err_msg = match render(r#"\"#) {
+            Ok(_) => unreachable!(),
+            Err(e) => match e {
+                Error::JsExecError(msg) => msg,
+                _ => unreachable!(),
+            },
+        };
+        assert!(err_msg.contains("ParseError"));
+    }
+
+    #[test]
+    fn test_error_color() {
+        let opts = Opts::builder()
+            .throw_on_error(false)
+            .error_color("#ff0000")
+            .build()
+            .unwrap();
+        let html = render_with_opts(r#"\"#, opts).unwrap();
+        assert!(html.contains(r#"span class="katex-error""#));
+        assert!(html.contains("#ff0000"));
+    }
+
+    #[test]
+    fn test_macros() {
+        let opts = Opts::builder()
+            .add_macro(r#"\RR"#.to_owned(), r#"\mathbb{R}"#.to_owned())
+            .build()
+            .unwrap();
+        let html = render_with_opts(r#"\RR"#, opts).unwrap();
+        assert!(html.contains("mathbb"));
     }
 }
