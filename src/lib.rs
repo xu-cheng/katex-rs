@@ -68,6 +68,7 @@ fn init_katex() -> Result<JsContext> {
 /// Options to be passed to KaTeX.
 ///
 /// Read <https://katex.org/docs/options.html> for more information.
+#[non_exhaustive]
 #[derive(Clone, Builder, Debug)]
 #[builder(setter(into))]
 pub struct Opts {
