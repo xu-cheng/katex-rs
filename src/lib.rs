@@ -148,7 +148,7 @@ impl OptsBuilder {
 }
 
 /// Output type from KaTeX.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum OutputType {
     /// Outputs KaTeX in HTML only.
     Html,
