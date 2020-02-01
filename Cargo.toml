@@ -3,6 +3,11 @@ name = "katex"
 version = "0.1.0"
 authors = ["Cheng XU <rust@xuc.me>"]
 edition = "2018"
+license = "MIT OR Apache-2.0"
+description = "Rust bindings to KaTeX"
+repository = "https://github.com/xu-cheng/katex-rs"
+documentation = "https://docs.rs/katex"
+readme = "README.md"
 
 [dependencies]
 derive_builder = "0.9.0"
