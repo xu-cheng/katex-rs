@@ -137,7 +137,7 @@ impl Into<JsValue> for Opts {
 }
 
 impl OptsBuilder {
-    /// Add an entry to [`Opts::macros`].
+    /// Add an entry to [`macros`](OptsBuilder::macros).
     pub fn add_macro(mut self, entry_name: String, entry_data: String) -> Self {
         match self.macros.as_mut() {
             Some(macros) => {
