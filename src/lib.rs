@@ -6,7 +6,7 @@
 //! Add this to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! howlong = "0.1"
+//! katex = "0.1"
 //! ```
 //!
 //! # Examples
