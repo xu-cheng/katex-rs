@@ -74,22 +74,22 @@ fn init_katex() -> Result<JsContext> {
 #[builder(setter(into, strip_option))]
 pub struct Opts {
     /// Whether to render the math in the display mode.
-    pub display_mode: Option<bool>,
+    display_mode: Option<bool>,
     /// KaTeX output type.
-    pub output_type: Option<OutputType>,
+    output_type: Option<OutputType>,
     /// Whether to have `\tags` rendered on the left instead of the right.
-    pub leqno: Option<bool>,
+    leqno: Option<bool>,
     /// Whether to make display math flush left.
-    pub fleqn: Option<bool>,
+    fleqn: Option<bool>,
     /// Whether to let KaTeX throw a ParseError for invalid LaTeX.
-    pub throw_on_error: Option<bool>,
+    throw_on_error: Option<bool>,
     /// Color used for invalid LaTeX.
-    pub error_color: Option<String>,
+    error_color: Option<String>,
     /// Collection of custom macros.
-    pub macros: HashMap<String, String>,
+    macros: HashMap<String, String>,
     /// Specifies a minimum thickness, in ems.
     /// Read <https://katex.org/docs/options.html> for more information.
-    pub min_rule_thickness: Option<f64>,
+    min_rule_thickness: Option<f64>,
 }
 
 impl Opts {
