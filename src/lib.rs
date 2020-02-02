@@ -162,6 +162,16 @@ impl Into<JsValue> for Opts {
 
 impl OptsBuilder {
     /// Add an entry to [`macros`](OptsBuilder::macros).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let opts = katex::Opts::builder()
+    ///     .add_macro(r#"\RR"#.to_owned(), r#"\mathbb{R}"#.to_owned())
+    ///     .build()
+    ///     .unwrap();
+    /// let html = katex::render_with_opts(r#"\RR"#, opts).unwrap();
+    /// ```
     pub fn add_macro(mut self, entry_name: String, entry_data: String) -> Self {
         match self.macros.as_mut() {
             Some(macros) => {
@@ -221,7 +231,7 @@ mod tests {
     }
 
     #[test]
-    fn test_render_in_display_mode() {
+    fn test_display_mode() {
         let opts = Opts::builder().display_mode(true).build().unwrap();
         let html = render_with_opts("a = b + c", opts).unwrap();
         assert!(html.contains(r#"span class="katex-display""#));
