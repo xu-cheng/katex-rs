@@ -8,6 +8,8 @@ description = "Rust bindings to KaTeX"
 repository = "https://github.com/xu-cheng/katex-rs"
 documentation = "https://docs.rs/katex"
 readme = "README.md"
+keywords = ["LaTeX", "KaTeX", "Math"]
+categories = ["api-bindings"]
 
 [dependencies]
 derive_builder = "0.9.0"
