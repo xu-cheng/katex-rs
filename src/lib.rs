@@ -148,7 +148,7 @@ impl<F: Fn(TrustContext) -> bool + RefUnwindSafe + 'static> From<F> for TrustCal
 
 impl quick_js::Callback<TrustCallBack> for TrustCallBack {
     fn argument_count(&self) -> usize {
-        3
+        1
     }
 
     fn call(
