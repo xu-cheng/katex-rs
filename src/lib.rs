@@ -87,7 +87,7 @@ fn init_katex() -> Result<JsContext> {
     Ok(ctx)
 }
 
-/// The input used by the [`TrustCallBack`].
+/// The input used by the [`TrustCallback`].
 /// See [`OptsBuilder::trust_callback`].
 #[derive(Debug)]
 pub struct TrustContext<'a> {
@@ -132,21 +132,21 @@ impl<'a> TryFrom<&'a JsValue> for TrustContext<'a> {
 /// It accepts [`TrustContext`] and returns a [`bool`].
 /// See [`OptsBuilder::trust_callback`].
 #[derive(Clone)]
-pub struct TrustCallBack(Arc<dyn Fn(TrustContext) -> bool + RefUnwindSafe>);
+pub struct TrustCallback(Arc<dyn Fn(TrustContext) -> bool + RefUnwindSafe>);
 
-impl fmt::Debug for TrustCallBack {
+impl fmt::Debug for TrustCallback {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Fn(TrustContext) -> bool")
     }
 }
 
-impl<F: Fn(TrustContext) -> bool + RefUnwindSafe + 'static> From<F> for TrustCallBack {
+impl<F: Fn(TrustContext) -> bool + RefUnwindSafe + 'static> From<F> for TrustCallback {
     fn from(f: F) -> Self {
         Self(Arc::from(f))
     }
 }
 
-impl quick_js::Callback<TrustCallBack> for TrustCallBack {
+impl quick_js::Callback<TrustCallback> for TrustCallback {
     fn argument_count(&self) -> usize {
         1
     }
@@ -219,7 +219,7 @@ pub struct Opts {
     ///     .build()
     ///     .unwrap();
     /// ```
-    trust_callback: Option<TrustCallBack>,
+    trust_callback: Option<TrustCallback>,
 }
 
 impl Opts {
