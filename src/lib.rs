@@ -519,4 +519,19 @@ mod tests {
         assert!(!html.contains(r#"color:#ff0000"#));
         assert!(html.contains(r#"a href="https://www.google.com""#));
     }
+
+    #[test]
+    fn test_stack_overflow() {
+        #[inline(never)]
+        fn simulate_deep_stack(i: i32) {
+            if i > 0 {
+                simulate_deep_stack(i - 1);
+            } else {
+                let html = render("a = b + c").unwrap();
+                assert!(html.contains(r#"span class="katex""#));
+            }
+        }
+        simulate_deep_stack(100);
+        simulate_deep_stack(0);
+    }
 }
