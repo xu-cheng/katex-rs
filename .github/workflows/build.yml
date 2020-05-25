@@ -12,7 +12,6 @@ jobs:
         with:
           toolchain: stable
           components: clippy
-          override: true
       - name: Run cargo generate-lockfile
         uses: actions-rs/cargo@v1
         with:
@@ -51,7 +50,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          override: true
       - name: Login to crates.io
         uses: actions-rs/cargo@v1
         with:
