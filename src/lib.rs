@@ -260,7 +260,7 @@ impl Opts {
 
     /// Add a custom macro.
     /// Read <https://katex.org/docs/options.html> for more information.
-    pub fn add_macro(mut self, entry_name: String, entry_data: String) {
+    pub fn add_macro(&mut self, entry_name: String, entry_data: String) {
         self.macros.insert(entry_name, entry_data);
     }
 
