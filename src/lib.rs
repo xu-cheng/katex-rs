@@ -227,6 +227,90 @@ impl Opts {
     pub fn builder() -> OptsBuilder {
         OptsBuilder::default()
     }
+
+    /// Set whether to render the math in the display mode.
+    pub fn set_display_mode(&mut self, flag: bool) {
+        self.display_mode = Some(flag);
+    }
+
+    /// Set KaTeX output type.
+    pub fn set_output_type(&mut self, output_type: OutputType) {
+        self.output_type = Some(output_type);
+    }
+
+    /// Set whether to have `\tags` rendered on the left instead of the right.
+    pub fn set_leqno(&mut self, flag: bool) {
+        self.leqno = Some(flag);
+    }
+
+    /// Set whether to make display math flush left.
+    pub fn set_fleqn(&mut self, flag: bool) {
+        self.fleqn = Some(flag);
+    }
+
+    /// Set whether to let KaTeX throw a ParseError for invalid LaTeX.
+    pub fn set_throw_on_error(&mut self, flag: bool) {
+        self.throw_on_error = Some(flag);
+    }
+
+    /// Set the color used for invalid LaTeX.
+    pub fn set_error_color(&mut self, color: String) {
+        self.error_color = Some(color);
+    }
+
+    /// Add a custom macro.
+    /// Read <https://katex.org/docs/options.html> for more information.
+    pub fn add_macro(mut self, entry_name: String, entry_data: String) {
+        self.macros.insert(entry_name, entry_data);
+    }
+
+    /// Set the minimum thickness, in ems.
+    /// Read <https://katex.org/docs/options.html> for more information.
+    pub fn set_min_rule_thickness(&mut self, value: f64) {
+        self.min_rule_thickness = Some(value);
+    }
+
+    /// Set the max size for user-specified sizes.
+    /// If set to `None`, users can make elements and spaces arbitrarily large.
+    /// Read <https://katex.org/docs/options.html> for more information.
+    pub fn set_max_size(&mut self, value: Option<f64>) {
+        self.max_size = Some(value);
+    }
+
+    /// Set the limit for the number of macro expansions.
+    /// If set to `None`, the macro expander will try to fully expand as in LaTeX.
+    /// Read <https://katex.org/docs/options.html> for more information.
+    pub fn set_max_expand(&mut self, value: Option<i32>) {
+        self.max_expand = Some(value);
+    }
+
+    /// Set whether to trust users' input.
+    /// Cannot be used at the same time with [`set_trust_callback`].
+    /// Read <https://katex.org/docs/options.html> for more information.
+    ///
+    /// # Panic
+    ///
+    /// Panic if `trust_callback` is also set.
+    pub fn set_trust(&mut self, flag: bool) {
+        if self.trust_callback.is_some() {
+            panic!("Cannot set `trust` and `trust_callback` at the same time");
+        }
+        self.trust = Some(flag);
+    }
+
+    /// Set the callback function to determine whether to trust users' input.
+    /// Cannot be used at the same time with [`set_trust`].
+    /// Read <https://katex.org/docs/options.html> for more information.
+    ///
+    /// # Panic
+    ///
+    /// Panic if `trust` is also set.
+    pub fn set_trust_callback(&mut self, callback: TrustCallback) {
+        if self.trust.is_some() {
+            panic!("Cannot set `trust` and `trust_callback` at the same time");
+        }
+        self.trust_callback = Some(callback);
+    }
 }
 
 impl Into<JsValue> for Opts {
