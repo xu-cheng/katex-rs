@@ -1,6 +1,6 @@
 [package]
 name = "katex"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Cheng XU <rust@xuc.me>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -13,5 +13,5 @@ categories = ["api-bindings"]
 
 [dependencies]
 derive_builder = "0.9.0"
-quick-js = { version = "0.3.0", features = ["patched"] }
-thiserror = "1.0"
+quick-js = { version = "0.3.4", features = ["patched"] }
+thiserror = "1.0.20"
