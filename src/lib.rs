@@ -15,7 +15,7 @@
 //! let html = katex::render("E = mc^2").unwrap();
 //!
 //! let opts = katex::Opts::builder().display_mode(true).build().unwrap();
-//! let html_in_display_mode = katex::render_with_opts("E = mc^2", opts).unwrap();
+//! let html_in_display_mode = katex::render_with_opts("E = mc^2", &opts).unwrap();
 //! ```
 
 #[macro_use]
@@ -311,10 +311,8 @@ impl Opts {
         }
         self.trust_callback = Some(callback);
     }
-}
 
-impl Into<JsValue> for Opts {
-    fn into(self) -> JsValue {
+    fn to_js_value(&self) -> JsValue {
         let mut opt: HashMap<String, JsValue> = HashMap::new();
         if let Some(display_mode) = self.display_mode {
             opt.insert("displayMode".to_owned(), display_mode.into());
@@ -339,10 +337,12 @@ impl Into<JsValue> for Opts {
         if let Some(throw_on_error) = self.throw_on_error {
             opt.insert("throwOnError".to_owned(), throw_on_error.into());
         }
-        if let Some(error_color) = self.error_color {
-            opt.insert("errorColor".to_owned(), error_color.into());
+        if let Some(error_color) = &self.error_color {
+            opt.insert("errorColor".to_owned(), error_color.clone().into());
         }
-        opt.insert("macros".to_owned(), self.macros.into());
+        if !self.macros.is_empty() {
+            opt.insert("macros".to_owned(), self.macros.clone().into());
+        }
         if let Some(min_rule_thickness) = self.min_rule_thickness {
             opt.insert("minRuleThickness".to_owned(), min_rule_thickness.into());
         }
@@ -371,6 +371,12 @@ impl Into<JsValue> for Opts {
     }
 }
 
+impl AsRef<Opts> for Opts {
+    fn as_ref(&self) -> &Opts {
+        self
+    }
+}
+
 impl OptsBuilder {
     /// Add an entry to [`macros`](OptsBuilder::macros).
     ///
@@ -381,7 +387,7 @@ impl OptsBuilder {
     ///     .add_macro(r#"\RR"#.to_owned(), r#"\mathbb{R}"#.to_owned())
     ///     .build()
     ///     .unwrap();
-    /// let html = katex::render_with_opts(r#"\RR"#, opts).unwrap();
+    /// let html = katex::render_with_opts(r#"\RR"#, &opts).unwrap();
     /// ```
     pub fn add_macro(mut self, entry_name: String, entry_data: String) -> Self {
         match self.macros.as_mut() {
@@ -419,16 +425,17 @@ pub enum OutputType {
 }
 
 /// Render LaTeX equation to HTML with additional [options](`Opts`).
-pub fn render_with_opts(input: &str, opts: Opts) -> Result<String> {
+pub fn render_with_opts(input: &str, opts: impl AsRef<Opts>) -> Result<String> {
     KATEX.with(|ctx| {
         let ctx = match ctx.as_ref() {
             Ok(ctx) => ctx,
             Err(e) => return Err(e.clone()),
         };
-        if let Some(trust_callback) = opts.trust_callback.clone() {
-            ctx.add_callback("trustCallback", trust_callback)?;
+        let opts = opts.as_ref();
+        if let Some(trust_callback) = &opts.trust_callback {
+            ctx.add_callback("trustCallback", trust_callback.clone())?;
         }
-        let args: Vec<JsValue> = vec![input.into(), opts.into()];
+        let args: Vec<JsValue> = vec![input.into(), opts.to_js_value()];
         let result = ctx
             .call_function("renderToString", args)?
             .into_string()
@@ -440,7 +447,7 @@ pub fn render_with_opts(input: &str, opts: Opts) -> Result<String> {
 /// Render LaTeX equation to HTML.
 #[inline]
 pub fn render(input: &str) -> Result<String> {
-    render_with_opts(input, Default::default())
+    render_with_opts(input, Opts::default())
 }
 
 #[cfg(test)]
@@ -457,9 +464,17 @@ mod tests {
     }
 
     #[test]
+    fn test_passing_opts_by_reference_and_value() {
+        let opts = Opts::builder().display_mode(true).build().unwrap();
+        let html1 = render_with_opts("a = b + c", &opts).unwrap();
+        let html2 = render_with_opts("a = b + c", opts).unwrap();
+        assert_eq!(html1, html2);
+    }
+
+    #[test]
     fn test_display_mode() {
         let opts = Opts::builder().display_mode(true).build().unwrap();
-        let html = render_with_opts("a = b + c", opts).unwrap();
+        let html = render_with_opts("a = b + c", &opts).unwrap();
         assert!(html.contains(r#"span class="katex-display""#));
     }
 
@@ -469,7 +484,7 @@ mod tests {
             .output_type(OutputType::Html)
             .build()
             .unwrap();
-        let html = render_with_opts("a = b + c", opts).unwrap();
+        let html = render_with_opts("a = b + c", &opts).unwrap();
         assert!(!html.contains(r#"span class="katex-mathml""#));
         assert!(html.contains(r#"span class="katex-html""#));
     }
@@ -480,7 +495,7 @@ mod tests {
             .output_type(OutputType::Mathml)
             .build()
             .unwrap();
-        let html = render_with_opts("a = b + c", opts).unwrap();
+        let html = render_with_opts("a = b + c", &opts).unwrap();
         assert!(html.contains(r#"MathML"#));
         assert!(!html.contains(r#"span class="katex-html""#));
     }
@@ -492,7 +507,7 @@ mod tests {
             .leqno(true)
             .build()
             .unwrap();
-        let html = render_with_opts("a = b + c", opts).unwrap();
+        let html = render_with_opts("a = b + c", &opts).unwrap();
         assert!(html.contains(r#"span class="katex-display leqno""#));
     }
 
@@ -503,7 +518,7 @@ mod tests {
             .fleqn(true)
             .build()
             .unwrap();
-        let html = render_with_opts("a = b + c", opts).unwrap();
+        let html = render_with_opts("a = b + c", &opts).unwrap();
         assert!(html.contains(r#"span class="katex-display fleqn""#));
     }
 
@@ -526,7 +541,7 @@ mod tests {
             .error_color("#ff0000")
             .build()
             .unwrap();
-        let html = render_with_opts(r#"\"#, opts).unwrap();
+        let html = render_with_opts(r#"\"#, &opts).unwrap();
         assert!(html.contains(r#"span class="katex-error""#));
         assert!(html.contains("color:#ff0000"));
     }
@@ -537,14 +552,14 @@ mod tests {
             .add_macro(r#"\RR"#.to_owned(), r#"\mathbb{R}"#.to_owned())
             .build()
             .unwrap();
-        let html = render_with_opts(r#"\RR"#, opts).unwrap();
+        let html = render_with_opts(r#"\RR"#, &opts).unwrap();
         assert!(html.contains("mathbb"));
     }
 
     #[test]
     fn test_trust() {
         let opts = Opts::builder().error_color("#ff0000").build().unwrap();
-        let html = render_with_opts(r#"\url{https://www.google.com}"#, opts).unwrap();
+        let html = render_with_opts(r#"\url{https://www.google.com}"#, &opts).unwrap();
         assert!(html.contains(r#"color:#ff0000"#));
         assert!(!html.contains(r#"a href="https://www.google.com""#));
 
@@ -553,7 +568,7 @@ mod tests {
             .trust(true)
             .build()
             .unwrap();
-        let html = render_with_opts(r#"\url{https://www.google.com}"#, opts).unwrap();
+        let html = render_with_opts(r#"\url{https://www.google.com}"#, &opts).unwrap();
         assert!(!html.contains(r#"color:#ff0000"#));
         assert!(html.contains(r#"a href="https://www.google.com""#));
     }
@@ -582,7 +597,7 @@ mod tests {
             })
             .build()
             .unwrap();
-        let html = render_with_opts(r#"\url{https://www.google.com}"#, opts).unwrap();
+        let html = render_with_opts(r#"\url{https://www.google.com}"#, &opts).unwrap();
         assert!(!html.contains(r#"color:#ff0000"#));
         assert!(html.contains(r#"a href="https://www.google.com""#));
     }
@@ -599,7 +614,7 @@ mod tests {
             .trust_callback(callback)
             .build()
             .unwrap();
-        let html = render_with_opts(r#"\url{https://www.google.com}"#, opts).unwrap();
+        let html = render_with_opts(r#"\url{https://www.google.com}"#, &opts).unwrap();
         assert!(!html.contains(r#"color:#ff0000"#));
         assert!(html.contains(r#"a href="https://www.google.com""#));
     }

@@ -25,7 +25,7 @@ katex = "0.2"
 let html = katex::render("E = mc^2").unwrap();
 
 let opts = katex::Opts::builder().display_mode(true).build().unwrap();
-let html_in_display_mode = katex::render_with_opts("E = mc^2", opts).unwrap();
+let html_in_display_mode = katex::render_with_opts("E = mc^2", &opts).unwrap();
 ```
 
 ## License
