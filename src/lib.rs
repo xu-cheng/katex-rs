@@ -104,19 +104,19 @@ impl<'a> TryFrom<&'a JsValue> for TrustContext<'a> {
             JsValue::Object(obj) => {
                 let command = obj
                     .get("command")
-                    .ok_or_else(|| quick_js::ValueError::UnexpectedType)?
+                    .ok_or(quick_js::ValueError::UnexpectedType)?
                     .as_str()
-                    .ok_or_else(|| quick_js::ValueError::UnexpectedType)?;
+                    .ok_or(quick_js::ValueError::UnexpectedType)?;
                 let url = obj
                     .get("url")
-                    .ok_or_else(|| quick_js::ValueError::UnexpectedType)?
+                    .ok_or(quick_js::ValueError::UnexpectedType)?
                     .as_str()
-                    .ok_or_else(|| quick_js::ValueError::UnexpectedType)?;
+                    .ok_or(quick_js::ValueError::UnexpectedType)?;
                 let protocol = obj
                     .get("protocol")
-                    .ok_or_else(|| quick_js::ValueError::UnexpectedType)?
+                    .ok_or(quick_js::ValueError::UnexpectedType)?
                     .as_str()
-                    .ok_or_else(|| quick_js::ValueError::UnexpectedType)?;
+                    .ok_or(quick_js::ValueError::UnexpectedType)?;
                 Ok(Self {
                     command,
                     url,
@@ -155,9 +155,7 @@ impl quick_js::Callback<TrustCallback> for TrustCallback {
         &self,
         args: Vec<JsValue>,
     ) -> core::result::Result<core::result::Result<JsValue, String>, quick_js::ValueError> {
-        let arg = args
-            .get(0)
-            .ok_or_else(|| quick_js::ValueError::UnexpectedType)?;
+        let arg = args.get(0).ok_or(quick_js::ValueError::UnexpectedType)?;
         let ctx = TrustContext::try_from(arg)?;
         let result = self.0(ctx);
         Ok(Ok(JsValue::from(result)))
@@ -439,7 +437,7 @@ pub fn render_with_opts(input: &str, opts: impl AsRef<Opts>) -> Result<String> {
         let result = ctx
             .call_function("renderToString", args)?
             .into_string()
-            .ok_or_else(|| quick_js::ValueError::UnexpectedType)?;
+            .ok_or(quick_js::ValueError::UnexpectedType)?;
         Ok(result)
     })
 }
