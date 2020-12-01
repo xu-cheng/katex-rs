@@ -8,4 +8,4 @@ VENDOR_DIR="$ROOT_DIR/vendor"
 
 mkdir -p "$VENDOR_DIR"
 rm -f "$VENDOR_DIR/katex.min.js"
-curl -L "$URL" | tar -x -z -C "$VENDOR_DIR" --strip-components 1 -f - katex/katex.min.js
+curl -L "$URL" | tar -x -z -C "$VENDOR_DIR" --strip-components 1 -f - katex/katex.min.js katex/contrib/mhchem.min.js
