@@ -29,8 +29,10 @@ use std::panic::RefUnwindSafe;
 use std::sync::Arc;
 
 const KATEX_SRC: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/katex.min.js"));
-const MHCHEM_SRC: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/contrib/mhchem.min.js"));
-
+const MHCHEM_SRC: &str = include_str!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/vendor/contrib/mhchem.min.js"
+));
 
 thread_local! {
     static KATEX: Result<JsContext> = init_katex();
