@@ -29,6 +29,10 @@ use std::panic::RefUnwindSafe;
 use std::sync::Arc;
 
 const KATEX_SRC: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/katex.min.js"));
+const MHCHEM_SRC: &str = include_str!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/vendor/contrib/mhchem.min.js"
+));
 
 thread_local! {
     static KATEX: Result<JsContext> = init_katex();
@@ -74,6 +78,7 @@ pub type Result<T> = core::result::Result<T, Error>;
 fn init_katex() -> Result<JsContext> {
     let ctx = JsContext::new()?;
     let _ = ctx.eval(KATEX_SRC)?;
+    let _ = ctx.eval(MHCHEM_SRC)?;
     let _ = ctx.eval(
         r#"
     function renderToString(input, opts) {
@@ -459,6 +464,17 @@ mod tests {
         assert!(html.contains(r#"span class="katex""#));
         assert!(html.contains(r#"span class="katex-mathml""#));
         assert!(html.contains(r#"span class="katex-html""#));
+        assert!(!html.contains(r#"span class="katex-error""#));
+    }
+
+    #[test]
+    fn test_render_mhchem() {
+        let html = render(r#"\ce{CO2 + C -> 2 CO}"#).unwrap();
+        assert!(!html.contains(r#"span class="katex-display""#));
+        assert!(html.contains(r#"span class="katex""#));
+        assert!(html.contains(r#"span class="katex-mathml""#));
+        assert!(html.contains(r#"span class="katex-html""#));
+        assert!(!html.contains(r#"span class="katex-error""#));
     }
 
     #[test]
