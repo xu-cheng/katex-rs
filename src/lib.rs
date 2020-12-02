@@ -462,6 +462,17 @@ mod tests {
         assert!(html.contains(r#"span class="katex""#));
         assert!(html.contains(r#"span class="katex-mathml""#));
         assert!(html.contains(r#"span class="katex-html""#));
+        assert!(!html.contains(r#"span class="katex-error""#));
+    }
+
+    #[test]
+    fn test_render_mhchem() {
+        let html = render(r#"\ce{CO2 + C -> 2 CO}"#).unwrap();
+        assert!(!html.contains(r#"span class="katex-display""#));
+        assert!(html.contains(r#"span class="katex""#));
+        assert!(html.contains(r#"span class="katex-mathml""#));
+        assert!(html.contains(r#"span class="katex-html""#));
+        assert!(!html.contains(r#"span class="katex-error""#));
     }
 
     #[test]
