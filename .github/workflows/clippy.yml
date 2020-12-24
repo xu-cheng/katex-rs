@@ -12,6 +12,10 @@ jobs:
         with:
           toolchain: stable
           components: clippy
+      - name: Run cargo generate-lockfile
+        uses: actions-rs/cargo@v1
+        with:
+          command: generate-lockfile
       - name: Cache cargo clippy
         uses: actions/cache@v1
         with:
