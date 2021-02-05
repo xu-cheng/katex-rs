@@ -13,5 +13,5 @@ categories = ["api-bindings"]
 
 [dependencies]
 derive_builder = "0.9"
-quick-js = { version = "0.3.4", features = ["patched"] }
+quick-js = { version = "0.4.0", features = ["patched"] }
 thiserror = "1.0"
