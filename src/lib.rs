@@ -137,7 +137,7 @@ impl<'a> TryFrom<&'a JsValue> for TrustContext<'a> {
 /// It accepts [`TrustContext`] and returns a [`bool`].
 /// See [`OptsBuilder::trust_callback`].
 #[derive(Clone)]
-pub struct TrustCallback(Arc<dyn Fn(TrustContext) -> bool + RefUnwindSafe>);
+pub struct TrustCallback(Arc<dyn Fn(TrustContext) -> bool + Sync + Send + RefUnwindSafe>);
 
 impl fmt::Debug for TrustCallback {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -145,7 +145,9 @@ impl fmt::Debug for TrustCallback {
     }
 }
 
-impl<F: Fn(TrustContext) -> bool + RefUnwindSafe + 'static> From<F> for TrustCallback {
+impl<F: Fn(TrustContext) -> bool + Sync + Send + RefUnwindSafe + 'static> From<F>
+    for TrustCallback
+{
     fn from(f: F) -> Self {
         Self(Arc::from(f))
     }
@@ -646,5 +648,12 @@ mod tests {
         }
         simulate_deep_stack(100);
         simulate_deep_stack(0);
+    }
+
+    #[test]
+    fn test_opts_sync_send() {
+        fn is_sync_send<T: Sync + Send>(_: T) {}
+        let opts = Opts::builder().build().unwrap();
+        is_sync_send(opts);
     }
 }
