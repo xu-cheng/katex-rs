@@ -94,6 +94,7 @@ fn init_katex() -> Result<JsContext> {
 
 /// The input used by the [`TrustCallback`].
 /// See [`OptsBuilder::trust_callback`].
+#[deprecated(since = "0.3.3")]
 #[derive(Debug)]
 pub struct TrustContext<'a> {
     pub command: &'a str,
@@ -101,6 +102,7 @@ pub struct TrustContext<'a> {
     pub protocol: &'a str,
 }
 
+#[allow(deprecated)]
 impl<'a> TryFrom<&'a JsValue> for TrustContext<'a> {
     type Error = quick_js::ValueError;
 
@@ -136,15 +138,19 @@ impl<'a> TryFrom<&'a JsValue> for TrustContext<'a> {
 /// A callback function to determine whether to trust users' input.
 /// It accepts [`TrustContext`] and returns a [`bool`].
 /// See [`OptsBuilder::trust_callback`].
+#[deprecated(since = "0.3.3")]
+#[allow(deprecated)]
 #[derive(Clone)]
 pub struct TrustCallback(Arc<dyn Fn(TrustContext) -> bool + Sync + Send + RefUnwindSafe>);
 
+#[allow(deprecated)]
 impl fmt::Debug for TrustCallback {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Fn(TrustContext) -> bool")
     }
 }
 
+#[allow(deprecated)]
 impl<F: Fn(TrustContext) -> bool + Sync + Send + RefUnwindSafe + 'static> From<F>
     for TrustCallback
 {
@@ -153,6 +159,7 @@ impl<F: Fn(TrustContext) -> bool + Sync + Send + RefUnwindSafe + 'static> From<F
     }
 }
 
+#[allow(deprecated)]
 impl quick_js::Callback<TrustCallback> for TrustCallback {
     fn argument_count(&self) -> usize {
         1
@@ -224,6 +231,8 @@ pub struct Opts {
     ///     .build()
     ///     .unwrap();
     /// ```
+    #[builder(setter(custom))]
+    #[allow(deprecated)]
     trust_callback: Option<TrustCallback>,
 }
 
@@ -310,6 +319,8 @@ impl Opts {
     /// # Panic
     ///
     /// Panic if `trust` is also set.
+    #[deprecated(since = "0.3.3", note = "Please use set_trust instead.")]
+    #[allow(deprecated)]
     pub fn set_trust_callback(&mut self, callback: TrustCallback) {
         if self.trust.is_some() {
             panic!("Cannot set `trust` and `trust_callback` at the same time");
@@ -404,6 +415,28 @@ impl OptsBuilder {
             }
         }
         self
+    }
+
+    /// A callback function to determine whether to trust users' input.
+    /// Cannot be assigned at the same time with [`OptsBuilder::trust`].
+    /// Read <https://katex.org/docs/options.html> for more information.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let opts = katex::Opts::builder()
+    ///     .trust_callback(|ctx: katex::TrustContext| -> bool {
+    ///         ctx.command == r#"\url"#
+    ///     })
+    ///     .build()
+    ///     .unwrap();
+    /// ```
+    #[deprecated(since = "0.3.3", note = "Please use trust instead.")]
+    #[allow(deprecated)]
+    pub fn trust_callback<VALUE: Into<TrustCallback>>(&mut self, value: VALUE) -> &mut Self {
+        let mut new = self;
+        new.trust_callback = Some(Some(value.into()));
+        new
     }
 
     /// Check that `Opts` is valid.
@@ -588,6 +621,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_set_both_trust_and_trust_callback() {
         let opts = Opts::builder()
             .trust(true)
@@ -601,6 +635,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_trust_callback_using_closure() {
         let opts = Opts::builder()
             .error_color("#ff0000")
@@ -617,6 +652,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_trust_callback_using_fn() {
         fn callback(ctx: TrustContext) -> bool {
             ctx.command == r#"\url"#
