@@ -299,7 +299,7 @@ impl Opts {
     }
 
     /// Set whether to trust users' input.
-    /// Cannot be used at the same time with [`set_trust_callback`].
+    /// Cannot be used at the same time with [`set_trust_callback`](#method.set_trust_callback).
     /// Read <https://katex.org/docs/options.html> for more information.
     ///
     /// # Panic
@@ -313,7 +313,7 @@ impl Opts {
     }
 
     /// Set the callback function to determine whether to trust users' input.
-    /// Cannot be used at the same time with [`set_trust`].
+    /// Cannot be used at the same time with [`set_trust`](#method.set_trust).
     /// Read <https://katex.org/docs/options.html> for more information.
     ///
     /// # Panic
