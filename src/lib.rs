@@ -351,10 +351,8 @@ impl Opts {
         if let Some(min_rule_thickness) = self.min_rule_thickness {
             opt.insert("minRuleThickness".to_owned(), min_rule_thickness.into());
         }
-        if let Some(max_size) = self.max_size {
-            if let Some(max_size) = max_size {
-                opt.insert("maxSize".to_owned(), max_size.into());
-            }
+        if let Some(Some(max_size)) = self.max_size {
+            opt.insert("maxSize".to_owned(), max_size.into());
         }
         if let Some(max_expand) = self.max_expand {
             match max_expand {
