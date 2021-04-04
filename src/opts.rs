@@ -11,7 +11,6 @@ use std::collections::HashMap;
 #[derive(Clone, Builder, Debug, Default)]
 #[builder(default)]
 #[builder(setter(into, strip_option))]
-#[builder(build_fn(validate = "Self::validate"))]
 pub struct Opts {
     /// Whether to render the math in the display mode.
     display_mode: Option<bool>,
@@ -210,11 +209,6 @@ impl OptsBuilder {
             }
         }
         self
-    }
-
-    /// Check that `Opts` is valid.
-    fn validate(&self) -> core::result::Result<(), String> {
-        Ok(())
     }
 }
 
