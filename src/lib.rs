@@ -76,7 +76,7 @@ fn render_inner<Engine: JsEngine>(
     let input = Engine::JsValue::from_string(input.to_owned());
     let opts: Engine::JsValue = opts.as_ref().to_js_value();
     let args = iter::once(input).chain(iter::once(opts));
-    engine.call_function("renderToString", args)?.to_string()
+    engine.call_function("renderToString", args)?.into_string()
 }
 
 /// Render LaTeX equation to HTML with additional [options](`Opts`).

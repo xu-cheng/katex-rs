@@ -50,13 +50,13 @@ pub trait JsValue: Sized + Clone + private::Sealed {
     fn is_string(&self) -> bool;
 
     /// Convert the JS Value to a [`bool`].
-    fn to_bool(self) -> Result<bool>;
+    fn into_bool(self) -> Result<bool>;
     /// Convert the JS Value to a [`i32`].
-    fn to_int(self) -> Result<i32>;
+    fn into_int(self) -> Result<i32>;
     /// Convert the JS Value to a [`f64`].
-    fn to_float(self) -> Result<f64>;
+    fn into_float(self) -> Result<f64>;
     /// Convert the JS Value to a [`String`].
-    fn to_string(self) -> Result<String>;
+    fn into_string(self) -> Result<String>;
 }
 
 mod private;

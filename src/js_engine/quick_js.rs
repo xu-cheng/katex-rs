@@ -85,19 +85,19 @@ impl JsValue for Value {
         matches!(self.0, quick_js::JsValue::String(_))
     }
 
-    fn to_bool(self) -> Result<bool> {
+    fn into_bool(self) -> Result<bool> {
         Ok(self.0.try_into()?)
     }
 
-    fn to_int(self) -> Result<i32> {
+    fn into_int(self) -> Result<i32> {
         Ok(self.0.try_into()?)
     }
 
-    fn to_float(self) -> Result<f64> {
+    fn into_float(self) -> Result<f64> {
         Ok(self.0.try_into()?)
     }
 
-    fn to_string(self) -> Result<String> {
+    fn into_string(self) -> Result<String> {
         Ok(self.0.try_into()?)
     }
 }
