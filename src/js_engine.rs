@@ -60,4 +60,4 @@ pub trait JsValue: Sized + Clone + private::Sealed {
 }
 
 mod private;
-pub(crate) mod quickjs;
+pub(crate) mod quick_js;

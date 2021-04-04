@@ -34,7 +34,7 @@ use js_engine::{JsEngine, JsValue};
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "quick-js")] {
-        type Engine = js_engine::quickjs::Engine;
+        type Engine = js_engine::quick_js::Engine;
     } else {
         compile_error!("Must enable one of the JS engines.");
     }
