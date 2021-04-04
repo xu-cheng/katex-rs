@@ -1,3 +1,5 @@
+//! Custom KaTeX behaviors.
+
 use crate::js_engine::JsValue;
 use derive_builder::Builder;
 use std::collections::HashMap;

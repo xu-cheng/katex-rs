@@ -7,7 +7,7 @@ use crate::{
     js_engine::{JsEngine, JsValue},
 };
 
-/// JS Engine.
+/// QuickJS Engine.
 pub struct Engine(quick_js::Context);
 
 impl JsEngine for Engine {
@@ -30,7 +30,7 @@ impl JsEngine for Engine {
     }
 }
 
-/// JS Value.
+/// QuickJS Value.
 #[derive(Debug, Clone)]
 pub struct Value(quick_js::JsValue);
 

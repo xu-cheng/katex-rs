@@ -18,6 +18,9 @@
 //! let html_in_display_mode = katex::render_with_opts("E = mc^2", &opts).unwrap();
 //! ```
 
+#![forbid(unsafe_code)]
+#![deny(missing_docs)]
+
 use core::cell::RefCell;
 
 pub mod error;
@@ -26,18 +29,21 @@ pub use error::{Error, Result};
 pub mod opts;
 pub use opts::{Opts, OptsBuilder, OutputType};
 
-pub mod js_engine;
-pub use js_engine::{JsEngine, JsValue};
+mod js_engine;
+use js_engine::{JsEngine, JsValue};
 
 type Engine = js_engine::quickjs::Engine;
 
+/// KaTeX JS source code.
 const KATEX_SRC: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/katex.min.js"));
+/// mhchem JS source code.
 const MHCHEM_SRC: &str = include_str!(concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/vendor/contrib/mhchem.min.js"
 ));
 
 thread_local! {
+    /// Per thread JS Engine used to render KaTeX.
     static KATEX: Result<RefCell<Engine>> = init_katex();
 }
 

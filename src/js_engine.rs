@@ -1,3 +1,5 @@
+//! Abstraction of the JS Engine.
+
 use crate::error::Result;
 
 /// A trait to represent a JS engine.
