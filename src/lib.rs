@@ -32,7 +32,13 @@ pub use opts::{Opts, OptsBuilder, OutputType};
 mod js_engine;
 use js_engine::{JsEngine, JsValue};
 
-type Engine = js_engine::quickjs::Engine;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "quick-js")] {
+        type Engine = js_engine::quickjs::Engine;
+    } else {
+        compile_error!("Must enable one of the JS engines.");
+    }
+}
 
 /// KaTeX JS source code.
 const KATEX_SRC: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/katex.min.js"));
