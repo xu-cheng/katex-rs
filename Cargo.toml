@@ -12,6 +12,6 @@ keywords = ["LaTeX", "KaTeX", "Math"]
 categories = ["api-bindings"]
 
 [dependencies]
-derive_builder = "0.9"
-quick-js = { version = "0.4.0", features = ["patched"] }
+derive_builder = "0.10"
+quick-js = { version = "0.4", features = ["patched"] }
 thiserror = "1.0"
