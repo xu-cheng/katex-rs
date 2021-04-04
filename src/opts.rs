@@ -1,6 +1,6 @@
-use quick_js::JsValue;
-use std::collections::HashMap;
+use crate::js_engine::JsValue;
 use derive_builder::Builder;
+use std::collections::HashMap;
 
 /// Options to be passed to KaTeX.
 ///
@@ -112,57 +112,69 @@ impl Opts {
         self.trust = Some(flag);
     }
 
-    pub(crate) fn to_js_value(&self) -> JsValue {
-        let mut opt: HashMap<String, JsValue> = HashMap::new();
+    pub(crate) fn to_js_value<T: JsValue>(&self) -> T {
+        let mut opt: HashMap<String, T> = HashMap::new();
         if let Some(display_mode) = self.display_mode {
-            opt.insert("displayMode".to_owned(), display_mode.into());
+            opt.insert("displayMode".to_owned(), T::from_bool(display_mode));
         }
         if let Some(output_type) = self.output_type {
             opt.insert(
                 "output".to_owned(),
-                match output_type {
-                    OutputType::Html => "html",
-                    OutputType::Mathml => "mathml",
-                    OutputType::HtmlAndMathml => "htmlAndMathml",
-                }
-                .into(),
+                T::from_string(
+                    match output_type {
+                        OutputType::Html => "html",
+                        OutputType::Mathml => "mathml",
+                        OutputType::HtmlAndMathml => "htmlAndMathml",
+                    }
+                    .to_owned(),
+                ),
             );
         }
         if let Some(leqno) = self.leqno {
-            opt.insert("leqno".to_owned(), leqno.into());
+            opt.insert("leqno".to_owned(), T::from_bool(leqno));
         }
         if let Some(fleqn) = self.fleqn {
-            opt.insert("fleqn".to_owned(), fleqn.into());
+            opt.insert("fleqn".to_owned(), T::from_bool(fleqn));
         }
         if let Some(throw_on_error) = self.throw_on_error {
-            opt.insert("throwOnError".to_owned(), throw_on_error.into());
+            opt.insert("throwOnError".to_owned(), T::from_bool(throw_on_error));
         }
         if let Some(error_color) = &self.error_color {
-            opt.insert("errorColor".to_owned(), error_color.clone().into());
+            opt.insert("errorColor".to_owned(), T::from_string(error_color.clone()));
         }
         if !self.macros.is_empty() {
-            opt.insert("macros".to_owned(), self.macros.clone().into());
+            opt.insert(
+                "macros".to_owned(),
+                T::from_object(
+                    self.macros
+                        .iter()
+                        .map(|(k, v)| (k.clone(), T::from_string(v.clone()))),
+                ),
+            );
         }
         if let Some(min_rule_thickness) = self.min_rule_thickness {
-            opt.insert("minRuleThickness".to_owned(), min_rule_thickness.into());
+            opt.insert(
+                "minRuleThickness".to_owned(),
+                T::from_float(min_rule_thickness),
+            );
         }
         if let Some(Some(max_size)) = self.max_size {
-            opt.insert("maxSize".to_owned(), max_size.into());
+            opt.insert("maxSize".to_owned(), T::from_float(max_size));
         }
         if let Some(max_expand) = self.max_expand {
             match max_expand {
                 Some(max_expand) => {
-                    opt.insert("maxExpand".to_owned(), max_expand.into());
+                    opt.insert("maxExpand".to_owned(), T::from_int(max_expand));
                 }
                 None => {
-                    opt.insert("maxExpand".to_owned(), i32::max_value().into());
+                    opt.insert("maxExpand".to_owned(), T::from_int(i32::max_value()));
                 }
             }
         }
         if let Some(trust) = self.trust {
-            opt.insert("trust".to_owned(), trust.into());
+            opt.insert("trust".to_owned(), T::from_bool(trust));
         }
-        JsValue::Object(opt)
+        T::from_object(opt.into_iter())
     }
 }
 

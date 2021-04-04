@@ -18,13 +18,18 @@
 //! let html_in_display_mode = katex::render_with_opts("E = mc^2", &opts).unwrap();
 //! ```
 
+use core::cell::RefCell;
+
 pub mod error;
 pub use error::{Error, Result};
 
 pub mod opts;
 pub use opts::{Opts, OptsBuilder, OutputType};
 
-use quick_js::{self, Context as JsContext, JsValue};
+pub mod js_engine;
+pub use js_engine::{JsEngine, JsValue};
+
+type Engine = js_engine::quickjs::Engine;
 
 const KATEX_SRC: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/katex.min.js"));
 const MHCHEM_SRC: &str = include_str!(concat!(
@@ -33,38 +38,42 @@ const MHCHEM_SRC: &str = include_str!(concat!(
 ));
 
 thread_local! {
-    static KATEX: Result<JsContext> = init_katex();
+    static KATEX: Result<RefCell<Engine>> = init_katex();
 }
 
 /// Initialize KaTeX js environment.
-fn init_katex() -> Result<JsContext> {
-    let ctx = JsContext::new()?;
-    let _ = ctx.eval(KATEX_SRC)?;
-    let _ = ctx.eval(MHCHEM_SRC)?;
-    let _ = ctx.eval(
-        r#"
-    function renderToString(input, opts) {
-        return katex.renderToString(input, opts);
-    }
-    "#,
+fn init_katex<Engine: JsEngine>() -> Result<RefCell<Engine>> {
+    let mut engine = Engine::new()?;
+    engine.eval(KATEX_SRC)?;
+    engine.eval(MHCHEM_SRC)?;
+    engine.eval(
+        "function renderToString(input, opts) { return katex.renderToString(input, opts); }",
     )?;
-    Ok(ctx)
+    Ok(RefCell::new(engine))
+}
+
+/// Render LaTeX equation to HTML using specified [engine](`JsEngine`) and [options](`Opts`).
+#[inline]
+fn render_inner<Engine: JsEngine>(
+    engine: &mut Engine,
+    input: &str,
+    opts: impl AsRef<Opts>,
+) -> Result<String> {
+    use core::iter;
+
+    let input = Engine::JsValue::from_string(input.to_owned());
+    let opts: Engine::JsValue = opts.as_ref().to_js_value();
+    let args = iter::once(input).chain(iter::once(opts));
+    engine.call_function("renderToString", args)?.to_string()
 }
 
 /// Render LaTeX equation to HTML with additional [options](`Opts`).
 pub fn render_with_opts(input: &str, opts: impl AsRef<Opts>) -> Result<String> {
-    KATEX.with(|ctx| {
-        let ctx = match ctx.as_ref() {
-            Ok(ctx) => ctx,
-            Err(e) => return Err(e.clone()),
-        };
-        let opts = opts.as_ref();
-        let args: Vec<JsValue> = vec![input.into(), opts.to_js_value()];
-        let result = ctx
-            .call_function("renderToString", args)?
-            .into_string()
-            .ok_or(quick_js::ValueError::UnexpectedType)?;
-        Ok(result)
+    KATEX.with(|engine| {
+        engine
+            .as_ref()
+            .map_err(|e| e.clone())
+            .and_then(|engine| render_inner(&mut *engine.borrow_mut(), input, opts))
     })
 }
 
