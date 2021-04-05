@@ -60,5 +60,13 @@ pub trait JsValue: Sized + Clone + private::Sealed {
 }
 
 mod private;
-#[cfg(feature = "quick-js")]
-pub(crate) mod quick_js;
+
+cfg_if::cfg_if! {
+    if #[cfg(feature = "quick-js")] {
+        mod quick_js;
+
+        pub(crate) type Engine = quick_js::Engine;
+    } else {
+        compile_error!("Must enable one of the JS engines.");
+    }
+}
