@@ -60,4 +60,5 @@ pub trait JsValue: Sized + Clone + private::Sealed {
 }
 
 mod private;
+#[cfg(feature = "quick-js")]
 pub(crate) mod quick_js;
