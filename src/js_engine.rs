@@ -3,7 +3,7 @@
 use crate::error::Result;
 
 /// A trait to represent a JS engine.
-pub trait JsEngine: Sized + private::Sealed {
+pub(crate) trait JsEngine: Sized {
     /// The type of a JS value.
     type JsValue: JsValue;
 
@@ -22,7 +22,7 @@ pub trait JsEngine: Sized + private::Sealed {
 }
 
 /// A trait to represent a JS value.
-pub trait JsValue: Sized + Clone + private::Sealed {
+pub(crate) trait JsValue: Sized + Clone {
     /// Create a JS value `null`.
     fn null() -> Self;
     /// Create a JS value from [`bool`].
@@ -58,8 +58,6 @@ pub trait JsValue: Sized + Clone + private::Sealed {
     /// Convert the JS Value to a [`String`].
     fn into_string(self) -> Result<String>;
 }
-
-mod private;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "quick-js")] {
