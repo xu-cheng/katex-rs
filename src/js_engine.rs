@@ -64,6 +64,10 @@ cfg_if::cfg_if! {
         mod quick_js;
 
         pub(crate) type Engine = quick_js::Engine;
+    } else if #[cfg(feature = "duktabe")] {
+        mod duktabe;
+
+        pub(crate) type Engine = duktabe::Engine;
     } else {
         compile_error!("Must enable one of the JS engines.");
     }
