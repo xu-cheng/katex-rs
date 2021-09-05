@@ -48,7 +48,7 @@ const JS_SRC: &str = concat!(
     )),
     // entry function
     r#"
-        let global;
+        var global;
         try {
             global = Function('return this')();
         } catch(e) {
