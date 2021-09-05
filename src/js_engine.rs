@@ -23,8 +23,6 @@ pub(crate) trait JsEngine: Sized {
 
 /// A trait to represent a JS value.
 pub(crate) trait JsValue: Sized + Clone {
-    /// Create a JS value `null`.
-    fn null() -> Self;
     /// Create a JS value from [`bool`].
     fn from_bool(input: bool) -> Self;
     /// Create a JS value from [`i32`].
@@ -33,28 +31,9 @@ pub(crate) trait JsValue: Sized + Clone {
     fn from_float(input: f64) -> Self;
     /// Create a JS value from [`String`].
     fn from_string(input: String) -> Self;
-    /// Create a JS array value from an iterator for `Self`.
-    fn from_array(input: impl Iterator<Item = Self>) -> Self;
     /// Create a JS object value from an iterator for `(String, Self)`.
     fn from_object(input: impl Iterator<Item = (String, Self)>) -> Self;
 
-    /// Check whether the JS value is `null`.
-    fn is_null(&self) -> bool;
-    /// Check whether the JS value is a [`bool`].
-    fn is_bool(&self) -> bool;
-    /// Check whether the JS value is a [`i32`].
-    fn is_int(&self) -> bool;
-    /// Check whether the JS value is a [`f64`].
-    fn is_float(&self) -> bool;
-    /// Check whether the JS value is a [`String`].
-    fn is_string(&self) -> bool;
-
-    /// Convert the JS Value to a [`bool`].
-    fn into_bool(self) -> Result<bool>;
-    /// Convert the JS Value to a [`i32`].
-    fn into_int(self) -> Result<i32>;
-    /// Convert the JS Value to a [`f64`].
-    fn into_float(self) -> Result<f64>;
     /// Convert the JS Value to a [`String`].
     fn into_string(self) -> Result<String>;
 }

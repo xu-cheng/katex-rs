@@ -35,10 +35,6 @@ impl JsEngine for Engine {
 pub struct Value(quick_js::JsValue);
 
 impl JsValue for Value {
-    fn null() -> Self {
-        Self(quick_js::JsValue::Null)
-    }
-
     fn from_bool(input: bool) -> Self {
         Self(quick_js::JsValue::Bool(input))
     }
@@ -55,46 +51,9 @@ impl JsValue for Value {
         Self(quick_js::JsValue::String(input))
     }
 
-    fn from_array(input: impl Iterator<Item = Self>) -> Self {
-        let array = input.into_iter().map(|v| v.0).collect();
-        Self(quick_js::JsValue::Array(array))
-    }
-
     fn from_object(input: impl Iterator<Item = (String, Self)>) -> Self {
         let obj = input.into_iter().map(|(k, v)| (k, v.0)).collect();
         Self(quick_js::JsValue::Object(obj))
-    }
-
-    fn is_null(&self) -> bool {
-        matches!(self.0, quick_js::JsValue::Null)
-    }
-
-    fn is_bool(&self) -> bool {
-        matches!(self.0, quick_js::JsValue::Bool(_))
-    }
-
-    fn is_int(&self) -> bool {
-        matches!(self.0, quick_js::JsValue::Int(_))
-    }
-
-    fn is_float(&self) -> bool {
-        matches!(self.0, quick_js::JsValue::Float(_))
-    }
-
-    fn is_string(&self) -> bool {
-        matches!(self.0, quick_js::JsValue::String(_))
-    }
-
-    fn into_bool(self) -> Result<bool> {
-        Ok(self.0.try_into()?)
-    }
-
-    fn into_int(self) -> Result<i32> {
-        Ok(self.0.try_into()?)
-    }
-
-    fn into_float(self) -> Result<f64> {
-        Ok(self.0.try_into()?)
     }
 
     fn into_string(self) -> Result<String> {
