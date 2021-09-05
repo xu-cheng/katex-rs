@@ -21,4 +21,4 @@ thiserror = "1.0"
 
 [features]
 default = ["quick-js"]
-ducktape = ["ducc"]
+duktape = ["ducc"]

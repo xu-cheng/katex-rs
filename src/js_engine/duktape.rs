@@ -1,4 +1,4 @@
-//! JS Engine implemented by [Ducktape](https://crates.io/crates/ducc).
+//! JS Engine implemented by [Duktape](https://crates.io/crates/ducc).
 
 use crate::{
     error::{Error, Result},
@@ -7,7 +7,7 @@ use crate::{
 use core::fmt;
 use ducc::{FromValue, ToValue};
 
-/// Ducktape Engine.
+/// Duktape Engine.
 pub struct Engine(ducc::Ducc);
 
 impl JsEngine for Engine {
@@ -16,7 +16,7 @@ impl JsEngine for Engine {
     }
 }
 
-/// Ducktape Scope.
+/// Duktape Scope.
 pub struct Scope<'a>(&'a mut ducc::Ducc);
 
 impl<'a> JsScope<'a> for Scope<'a> {
@@ -97,7 +97,7 @@ impl<'a> JsScope<'a> for Scope<'a> {
     }
 }
 
-/// Ducktape Value.
+/// Duktape Value.
 pub struct Value<'a> {
     value: ducc::Value<'a>,
     scope: &'a Scope<'a>,
