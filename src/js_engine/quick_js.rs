@@ -1,11 +1,10 @@
 //! JS Engine implemented by [QuickJs](https://crates.io/crates/quick-js).
 
-use core::convert::TryInto;
-
 use crate::{
     error::{Error, Result},
     js_engine::{JsEngine, JsScope, JsValue},
 };
+use core::convert::TryInto;
 
 /// QuickJS Engine.
 pub struct Engine(quick_js::Context);
