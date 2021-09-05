@@ -13,7 +13,7 @@ pub(crate) trait JsScope<'a>: Sized {
     /// The type of the JS engine.
     type JsEngine: JsEngine;
 
-    /// The type of a JS value.
+    /// The type of the JS value.
     type JsValue: JsValue;
 
     /// Get the global scope from the JS engine.
@@ -41,7 +41,7 @@ pub(crate) trait JsScope<'a>: Sized {
     /// Create a JS value from [`String`].
     fn create_string_value(&'a self, input: String) -> Result<Self::JsValue>;
 
-    /// Create a JS object value from an iterator for `(String, Self)`.
+    /// Create a JS object value from an iterator for `(String, Self::JsValue)`.
     fn create_object_value(
         &'a self,
         input: impl Iterator<Item = (String, Self::JsValue)>,
