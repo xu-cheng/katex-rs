@@ -25,6 +25,15 @@ quick-js = { version = "0.4", features = ["patched"], optional = true }
 [target.'cfg(any(unix, windows))'.dependencies]
 ducc = { version = "0.1", optional = true }
 
+# wasm-js is available in wasm32-unknown-unknown
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+wasm-bindgen = { version = "0.2", default-features = false, optional = true }
+js-sys = { version = "0.3", optional = true }
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dev-dependencies]
+wasm-bindgen-test = "0.3"
+
 [features]
 default = ["quick-js"]
 duktape = ["ducc"]
+wasm-js = ["wasm-bindgen", "js-sys"]
+wasm-js-test-in-browser = []

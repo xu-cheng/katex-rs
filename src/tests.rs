@@ -1,5 +1,11 @@
 use super::*;
 
+#[cfg(feature = "wasm-js")]
+use wasm_bindgen_test::wasm_bindgen_test as test;
+
+#[cfg(all(feature = "wasm-js", feature = "wasm-js-test-in-browser"))]
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
 #[test]
 fn test_render() {
     let html = render("a = b + c").unwrap();

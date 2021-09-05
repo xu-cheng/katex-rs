@@ -65,6 +65,11 @@ cfg_if::cfg_if! {
 
         pub(crate) type Engine = duktape::Engine;
         pub(crate) type Scope<'a> = duktape::Scope<'a>;
+    } else if #[cfg(feature = "wasm-js")] {
+        mod wasm_js;
+
+        pub(crate) type Engine = wasm_js::Engine;
+        pub(crate) type Scope<'a> = wasm_js::Scope<'a>;
     } else {
         compile_error!("Must enable one of the JS engines.");
     }

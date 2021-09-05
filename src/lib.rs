@@ -47,7 +47,15 @@ const JS_SRC: &str = concat!(
         "/vendor/contrib/mhchem.min.js"
     )),
     // entry function
-    "function renderToString(input, opts) { return katex.renderToString(input, opts); }"
+    r#"
+        let global;
+        try {
+            global = Function('return this')();
+        } catch(e) {
+            global = window;
+        }
+        global.katexRenderToString = function (input, opts) { return katex.renderToString(input, opts); };
+    "#,
 );
 
 thread_local! {
@@ -72,7 +80,7 @@ fn render_inner(engine: &mut Engine, input: &str, opts: impl AsRef<Opts>) -> Res
     let input = scope.create_string_value(input.to_owned())?;
     let opts = opts.as_ref().to_js_value(&scope)?;
     let args = iter::once(input).chain(iter::once(opts));
-    let result = scope.call_function("renderToString", args)?;
+    let result = scope.call_function("katexRenderToString", args)?;
     result.into_string()
 }
 
