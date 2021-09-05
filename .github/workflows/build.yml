@@ -4,6 +4,9 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: ["quick-js", "ducktape"]
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2
@@ -19,17 +22,17 @@ jobs:
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.features }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
       - name: Run cargo build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
+          args: --no-default-features --features ${{ matrix.features }}
       - name: Run cargo test
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --release --all-features --no-fail-fast
+          args: --no-default-features --features ${{ matrix.features }} --no-fail-fast
 
   deploy:
     if: startsWith(github.ref, 'refs/tags/')

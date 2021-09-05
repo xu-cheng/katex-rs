@@ -4,6 +4,9 @@ jobs:
   clippy:
     name: clippy
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: ["quick-js", "ducktape"]
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2
@@ -15,6 +18,7 @@ jobs:
       - name: Run clippy
         uses: actions-rs/clippy-check@v1
         with:
+          name: clippy-${{ matrix.features }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --all-targets -- -D warnings
+          args: --no-default-features --features ${{ matrix.features }} --all-targets -- -D warnings
 
