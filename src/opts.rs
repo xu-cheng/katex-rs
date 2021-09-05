@@ -1,7 +1,8 @@
 //! Custom KaTeX behaviors.
 
-use crate::js_engine::JsValue;
+use crate::{error::Result, js_engine::JsScope};
 use derive_builder::Builder;
+use itertools::process_results;
 use std::collections::HashMap;
 
 /// Options to be passed to KaTeX.
@@ -113,69 +114,86 @@ impl Opts {
         self.trust = Some(flag);
     }
 
-    pub(crate) fn to_js_value<T: JsValue>(&self) -> T {
-        let mut opt: HashMap<String, T> = HashMap::new();
+    pub(crate) fn to_js_value<'a, Scope: JsScope<'a>>(
+        &self,
+        scope: &'a Scope,
+    ) -> Result<Scope::JsValue> {
+        let mut opt: HashMap<String, Scope::JsValue> = HashMap::new();
         if let Some(display_mode) = self.display_mode {
-            opt.insert("displayMode".to_owned(), T::from_bool(display_mode));
+            opt.insert(
+                "displayMode".to_owned(),
+                scope.create_bool_value(display_mode)?,
+            );
         }
         if let Some(output_type) = self.output_type {
             opt.insert(
                 "output".to_owned(),
-                T::from_string(
+                scope.create_string_value(
                     match output_type {
                         OutputType::Html => "html",
                         OutputType::Mathml => "mathml",
                         OutputType::HtmlAndMathml => "htmlAndMathml",
                     }
                     .to_owned(),
-                ),
+                )?,
             );
         }
         if let Some(leqno) = self.leqno {
-            opt.insert("leqno".to_owned(), T::from_bool(leqno));
+            opt.insert("leqno".to_owned(), scope.create_bool_value(leqno)?);
         }
         if let Some(fleqn) = self.fleqn {
-            opt.insert("fleqn".to_owned(), T::from_bool(fleqn));
+            opt.insert("fleqn".to_owned(), scope.create_bool_value(fleqn)?);
         }
         if let Some(throw_on_error) = self.throw_on_error {
-            opt.insert("throwOnError".to_owned(), T::from_bool(throw_on_error));
+            opt.insert(
+                "throwOnError".to_owned(),
+                scope.create_bool_value(throw_on_error)?,
+            );
         }
         if let Some(error_color) = &self.error_color {
-            opt.insert("errorColor".to_owned(), T::from_string(error_color.clone()));
+            opt.insert(
+                "errorColor".to_owned(),
+                scope.create_string_value(error_color.clone())?,
+            );
         }
         if !self.macros.is_empty() {
-            opt.insert(
-                "macros".to_owned(),
-                T::from_object(
-                    self.macros
-                        .iter()
-                        .map(|(k, v)| (k.clone(), T::from_string(v.clone()))),
-                ),
-            );
+            let macros = process_results(
+                self.macros
+                    .iter()
+                    .map(|(k, v)| -> Result<(String, Scope::JsValue)> {
+                        Ok((k.clone(), scope.create_string_value(v.clone())?))
+                    }),
+                |iter| -> Result<Scope::JsValue> { scope.create_object_value(iter) },
+            )??;
+
+            opt.insert("macros".to_owned(), macros);
         }
         if let Some(min_rule_thickness) = self.min_rule_thickness {
             opt.insert(
                 "minRuleThickness".to_owned(),
-                T::from_float(min_rule_thickness),
+                scope.create_float_value(min_rule_thickness)?,
             );
         }
         if let Some(Some(max_size)) = self.max_size {
-            opt.insert("maxSize".to_owned(), T::from_float(max_size));
+            opt.insert("maxSize".to_owned(), scope.create_float_value(max_size)?);
         }
         if let Some(max_expand) = self.max_expand {
             match max_expand {
                 Some(max_expand) => {
-                    opt.insert("maxExpand".to_owned(), T::from_int(max_expand));
+                    opt.insert("maxExpand".to_owned(), scope.create_int_value(max_expand)?);
                 }
                 None => {
-                    opt.insert("maxExpand".to_owned(), T::from_int(i32::max_value()));
+                    opt.insert(
+                        "maxExpand".to_owned(),
+                        scope.create_int_value(i32::max_value())?,
+                    );
                 }
             }
         }
         if let Some(trust) = self.trust {
-            opt.insert("trust".to_owned(), T::from_bool(trust));
+            opt.insert("trust".to_owned(), scope.create_bool_value(trust)?);
         }
-        T::from_object(opt.into_iter())
+        scope.create_object_value(opt.into_iter())
     }
 }
 

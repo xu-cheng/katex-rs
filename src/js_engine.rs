@@ -4,36 +4,52 @@ use crate::error::Result;
 
 /// A trait to represent a JS engine.
 pub(crate) trait JsEngine: Sized {
+    /// Create a JS engine.
+    fn new() -> Result<Self>;
+}
+
+/// A trait to represent a JS scope.
+pub(crate) trait JsScope<'a>: Sized {
+    /// The type of the JS engine.
+    type JsEngine: JsEngine;
+
     /// The type of a JS value.
     type JsValue: JsValue;
 
-    /// Create a JS engine.
-    fn new() -> Result<Self>;
+    /// Get the global scope from the JS engine.
+    fn global_scope(engine: &'a mut Self::JsEngine) -> Self;
 
     /// Evaluate arbitrary code in the JS engine.
-    fn eval(&mut self, code: &str) -> Result<Self::JsValue>;
+    fn eval(&'a self, code: &str) -> Result<Self::JsValue>;
 
     /// Call a JS function in the JS engine.
     fn call_function(
-        &mut self,
+        &'a self,
         func_name: &str,
         args: impl Iterator<Item = Self::JsValue>,
+    ) -> Result<Self::JsValue>;
+
+    /// Create a JS value from [`bool`].
+    fn create_bool_value(&'a self, input: bool) -> Result<Self::JsValue>;
+
+    /// Create a JS value from [`i32`].
+    fn create_int_value(&'a self, input: i32) -> Result<Self::JsValue>;
+
+    /// Create a JS value from [`f64`].
+    fn create_float_value(&'a self, input: f64) -> Result<Self::JsValue>;
+
+    /// Create a JS value from [`String`].
+    fn create_string_value(&'a self, input: String) -> Result<Self::JsValue>;
+
+    /// Create a JS object value from an iterator for `(String, Self)`.
+    fn create_object_value(
+        &'a self,
+        input: impl Iterator<Item = (String, Self::JsValue)>,
     ) -> Result<Self::JsValue>;
 }
 
 /// A trait to represent a JS value.
-pub(crate) trait JsValue: Sized + Clone {
-    /// Create a JS value from [`bool`].
-    fn from_bool(input: bool) -> Self;
-    /// Create a JS value from [`i32`].
-    fn from_int(input: i32) -> Self;
-    /// Create a JS value from [`f64`].
-    fn from_float(input: f64) -> Self;
-    /// Create a JS value from [`String`].
-    fn from_string(input: String) -> Self;
-    /// Create a JS object value from an iterator for `(String, Self)`.
-    fn from_object(input: impl Iterator<Item = (String, Self)>) -> Self;
-
+pub(crate) trait JsValue: Sized {
     /// Convert the JS Value to a [`String`].
     fn into_string(self) -> Result<String>;
 }
@@ -43,6 +59,7 @@ cfg_if::cfg_if! {
         mod quick_js;
 
         pub(crate) type Engine = quick_js::Engine;
+        pub(crate) type Scope<'a> = quick_js::Scope<'a>;
     } else {
         compile_error!("Must enable one of the JS engines.");
     }

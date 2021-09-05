@@ -30,7 +30,7 @@ pub mod opts;
 pub use opts::{Opts, OptsBuilder, OutputType};
 
 mod js_engine;
-use js_engine::{Engine, JsEngine, JsValue};
+use js_engine::{Engine, JsEngine, JsScope, JsValue, Scope};
 
 /// JS source code.
 const JS_SRC: &str = concat!(
@@ -51,25 +51,24 @@ thread_local! {
 }
 
 /// Initialize KaTeX js environment.
-fn init_katex<Engine: JsEngine>() -> Result<RefCell<Engine>> {
+fn init_katex() -> Result<RefCell<Engine>> {
     let mut engine = Engine::new()?;
-    engine.eval(JS_SRC)?;
+    let scope = Scope::global_scope(&mut engine);
+    scope.eval(JS_SRC)?;
     Ok(RefCell::new(engine))
 }
 
 /// Render LaTeX equation to HTML using specified [engine](`JsEngine`) and [options](`Opts`).
 #[inline]
-fn render_inner<Engine: JsEngine>(
-    engine: &mut Engine,
-    input: &str,
-    opts: impl AsRef<Opts>,
-) -> Result<String> {
+fn render_inner(engine: &mut Engine, input: &str, opts: impl AsRef<Opts>) -> Result<String> {
     use core::iter;
 
-    let input = Engine::JsValue::from_string(input.to_owned());
-    let opts: Engine::JsValue = opts.as_ref().to_js_value();
+    let scope = Scope::global_scope(engine);
+    let input = scope.create_string_value(input.to_owned())?;
+    let opts = opts.as_ref().to_js_value(&scope)?;
     let args = iter::once(input).chain(iter::once(opts));
-    engine.call_function("renderToString", args)?.into_string()
+    let result = scope.call_function("renderToString", args)?;
+    result.into_string()
 }
 
 /// Render LaTeX equation to HTML with additional [options](`Opts`).
