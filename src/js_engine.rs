@@ -60,6 +60,11 @@ cfg_if::cfg_if! {
 
         pub(crate) type Engine = quick_js::Engine;
         pub(crate) type Scope<'a> = quick_js::Scope<'a>;
+    } else if #[cfg(feature = "ducktape")] {
+        mod ducktape;
+
+        pub(crate) type Engine = ducktape::Engine;
+        pub(crate) type Scope<'a> = ducktape::Scope<'a>;
     } else {
         compile_error!("Must enable one of the JS engines.");
     }
