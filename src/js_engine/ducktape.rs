@@ -56,28 +56,28 @@ impl<'a> JsScope<'a> for Scope<'a> {
 
     fn create_bool_value(&'a self, input: bool) -> Result<Self::JsValue> {
         Ok(Value {
-            value: input.to_value(&self.0)?,
+            value: input.to_value(self.0)?,
             scope: self,
         })
     }
 
     fn create_int_value(&'a self, input: i32) -> Result<Self::JsValue> {
         Ok(Value {
-            value: input.to_value(&self.0)?,
+            value: input.to_value(self.0)?,
             scope: self,
         })
     }
 
     fn create_float_value(&'a self, input: f64) -> Result<Self::JsValue> {
         Ok(Value {
-            value: input.to_value(&self.0)?,
+            value: input.to_value(self.0)?,
             scope: self,
         })
     }
 
     fn create_string_value(&'a self, input: String) -> Result<Self::JsValue> {
         Ok(Value {
-            value: input.to_value(&self.0)?,
+            value: input.to_value(self.0)?,
             scope: self,
         })
     }
@@ -105,7 +105,7 @@ pub struct Value<'a> {
 
 impl<'a> JsValue for Value<'a> {
     fn into_string(self) -> Result<String> {
-        Ok(String::from_value(self.value, &self.scope.0)?)
+        Ok(String::from_value(self.value, self.scope.0)?)
     }
 }
 
