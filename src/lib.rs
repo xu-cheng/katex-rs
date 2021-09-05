@@ -32,13 +32,18 @@ pub use opts::{Opts, OptsBuilder, OutputType};
 mod js_engine;
 use js_engine::{Engine, JsEngine, JsValue};
 
-/// KaTeX JS source code.
-const KATEX_SRC: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/katex.min.js"));
-/// mhchem JS source code.
-const MHCHEM_SRC: &str = include_str!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/vendor/contrib/mhchem.min.js"
-));
+/// JS source code.
+const JS_SRC: &str = concat!(
+    // KaTeX JS source code
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/katex.min.js")),
+    // mhchem JS source code
+    include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/vendor/contrib/mhchem.min.js"
+    )),
+    // entry function
+    "function renderToString(input, opts) { return katex.renderToString(input, opts); }"
+);
 
 thread_local! {
     /// Per thread JS Engine used to render KaTeX.
@@ -48,11 +53,7 @@ thread_local! {
 /// Initialize KaTeX js environment.
 fn init_katex<Engine: JsEngine>() -> Result<RefCell<Engine>> {
     let mut engine = Engine::new()?;
-    engine.eval(KATEX_SRC)?;
-    engine.eval(MHCHEM_SRC)?;
-    engine.eval(
-        "function renderToString(input, opts) { return katex.renderToString(input, opts); }",
-    )?;
+    engine.eval(JS_SRC)?;
     Ok(RefCell::new(engine))
 }
 
