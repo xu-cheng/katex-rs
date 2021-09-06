@@ -51,11 +51,33 @@ jobs:
         run: |
           wasm-pack test --chrome --headless --no-default-features --features wasm-js,wasm-js-test-in-browser
 
+  test-wasm-node:
+    name: "test (wasm-js node)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v2
+      - name: Set up rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+      - name: Set up Node
+        uses: actions/setup-node@v2
+      - name: Set up wasm-pack
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Cache rust artifacts
+        uses: Swatinem/rust-cache@v1
+      - name: Run wasm-pack test
+        run: |
+          wasm-pack test --node --no-default-features --features wasm-js,wasm-js-test-in-browser
+
   deploy:
     if: startsWith(github.ref, 'refs/tags/')
     name: deploy
     runs-on: ubuntu-latest
-    needs: [test, test-wasm-browser]
+    needs: [test, test-wasm-browser, test-wasm-node]
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2
