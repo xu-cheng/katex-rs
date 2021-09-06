@@ -51,7 +51,7 @@ jobs:
           key: wasm
       - name: Run wasm-pack test
         run: |
-          wasm-pack test --chrome --headless --no-default-features --features wasm-js,wasm-js-test-in-browser --no-fail-fast
+          wasm-pack test --chrome --headless --no-default-features --features wasm-js,wasm-js-test-in-browser
 
   deploy:
     if: startsWith(github.ref, 'refs/tags/')
