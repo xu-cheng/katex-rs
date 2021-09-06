@@ -6,7 +6,7 @@
 //! Add this to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! katex = "0.4.0-alpha.3"
+//! katex = "0.4.0"
 //! ```
 //!
 //! This crate offers the following features:
