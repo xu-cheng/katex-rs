@@ -23,7 +23,7 @@ jobs:
           args: --no-default-features --features ${{ matrix.features }} --all-targets -- -D warnings
 
   clippy-wasm:
-    name: clippy-wasm
+    name: "clippy (wasm-js)"
     runs-on: ubuntu-latest
     steps:
       - name: Set up Git repository
