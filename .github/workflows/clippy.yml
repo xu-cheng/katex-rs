@@ -22,3 +22,22 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --no-default-features --features ${{ matrix.features }} --all-targets -- -D warnings
 
+  clippy-wasm:
+    name: clippy-wasm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v2
+      - name: Set up rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          target: wasm32-unknown-unknown
+      - name: Run clippy
+        uses: actions-rs/clippy-check@v1
+        with:
+          name: clippy-wasm
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --target wasm32-unknown-unknown --no-default-features --features wasm-js --all-targets -- -D warnings
+
