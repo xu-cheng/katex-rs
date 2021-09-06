@@ -47,15 +47,7 @@ const JS_SRC: &str = concat!(
         "/vendor/contrib/mhchem.min.js"
     )),
     // entry function
-    r#"
-        var global;
-        try {
-            global = Function('return this')();
-        } catch(e) {
-            global = window;
-        }
-        global.katexRenderToString = function (input, opts) { return katex.renderToString(input, opts); };
-    "#,
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/js/entry.js")),
 );
 
 thread_local! {
