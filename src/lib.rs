@@ -45,6 +45,10 @@ use js_engine::{Engine, JsEngine, JsScope, JsValue, Scope};
 
 /// JS source code.
 const JS_SRC: &str = concat!(
+    // HACK to load KaTeX code in Node.js
+    // By setting `module` and `exports` as undefined, we prevent KaTeX to
+    // be loaded like normal Node.js module.
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/js/node-hack.js")),
     // KaTeX JS source code
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor/katex.min.js")),
     // mhchem JS source code
@@ -52,6 +56,8 @@ const JS_SRC: &str = concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/vendor/contrib/mhchem.min.js"
     )),
+    // restore HACK done in node-hack.js
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/js/post-node-hack.js")),
     // entry function
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/js/entry.js")),
 );
