@@ -4,6 +4,4 @@ try {
 } catch (e) {
     global = window;
 }
-global.katexRenderToString = function(input, opts) {
-    return katex.renderToString(input, opts);
-};
+global.katexRenderToString = katex.renderToString;
