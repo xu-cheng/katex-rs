@@ -18,7 +18,6 @@
 //! * `wasm-js`: Use [wasm-bindgen](https://crates.io/crates/wasm-bindgen) and
 //!    [js-sys](https://crates.io/crates/js-sys) as the JS backend.
 //!    You need to disable the default features to enable this backend.
-//!    Currently, it only supports browser environment. Node.js is unsupported.
 //!
 //! # Examples
 //!
