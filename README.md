@@ -16,7 +16,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-katex = "0.4.0"
+katex = "0.4"
 ```
 
 This crate offers the following features:
