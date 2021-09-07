@@ -58,18 +58,18 @@ cfg_if::cfg_if! {
     if #[cfg(feature = "quick-js")] {
         mod quick_js;
 
-        pub(crate) type Engine = quick_js::Engine;
-        pub(crate) type Scope<'a> = quick_js::Scope<'a>;
+        pub(crate) type Engine = self::quick_js::Engine;
+        pub(crate) type Scope<'a> = self::quick_js::Scope<'a>;
     } else if #[cfg(feature = "duktape")] {
         mod duktape;
 
-        pub(crate) type Engine = duktape::Engine;
-        pub(crate) type Scope<'a> = duktape::Scope<'a>;
+        pub(crate) type Engine = self::duktape::Engine;
+        pub(crate) type Scope<'a> = self::duktape::Scope<'a>;
     } else if #[cfg(feature = "wasm-js")] {
         mod wasm_js;
 
-        pub(crate) type Engine = wasm_js::Engine;
-        pub(crate) type Scope<'a> = wasm_js::Scope<'a>;
+        pub(crate) type Engine = self::wasm_js::Engine;
+        pub(crate) type Scope<'a> = self::wasm_js::Scope<'a>;
     } else {
         compile_error!("Must enable one of the JS engines.");
     }
