@@ -111,7 +111,7 @@ impl<'a> JsValue for Value<'a> {
 
 impl<'a> fmt::Debug for Value<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.value.fmt(f)
+        f.debug_struct("Value").field("value", &self.value).finish()
     }
 }
 
