@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="v0.15.1"
+VERSION="v0.15.2"
 URL="https://github.com/KaTeX/KaTeX/releases/download/${VERSION}/katex.tar.gz"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
