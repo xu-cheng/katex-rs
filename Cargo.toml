@@ -35,6 +35,7 @@ wasm-bindgen-test = "0.3"
 
 [features]
 default = ["quick-js"]
-duktape = ["ducc"]
-wasm-js = ["wasm-bindgen", "js-sys"]
+quick-js = ["dep:quick-js"]
+duktape = ["dep:ducc"]
+wasm-js = ["dep:wasm-bindgen", "dep:js-sys"]
 wasm-js-test-in-browser = []
