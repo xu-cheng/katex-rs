@@ -86,6 +86,6 @@ impl JsValue for Value {
     fn into_string(self) -> Result<String> {
         self.0
             .as_string()
-            .ok_or_else(|| Error::JsValueError("cannot conver value to string".to_owned()))
+            .ok_or_else(|| Error::JsValueError("cannot convert value to string".to_owned()))
     }
 }
