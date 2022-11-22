@@ -82,7 +82,7 @@ impl<'a> JsScope<'a> for Scope<'a> {
 #[derive(Debug)]
 pub struct Value(wasm_bindgen::JsValue);
 
-impl<'a> JsValue for Value {
+impl JsValue for Value {
     fn into_string(self) -> Result<String> {
         self.0
             .as_string()

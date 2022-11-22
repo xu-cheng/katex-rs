@@ -93,7 +93,7 @@ pub fn render_with_opts(input: &str, opts: impl AsRef<Opts>) -> Result<String> {
         engine
             .as_ref()
             .map_err(|e| e.clone())
-            .and_then(|engine| render_inner(&mut *engine.borrow_mut(), input, opts))
+            .and_then(|engine| render_inner(&mut engine.borrow_mut(), input, opts))
     })
 }
 
