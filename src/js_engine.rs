@@ -1,6 +1,7 @@
 //! Abstraction of the JS Engine.
 
 use crate::error::Result;
+use cfg_if::cfg_if;
 
 /// A trait to represent a JS engine.
 pub(crate) trait JsEngine: Sized {
@@ -54,22 +55,40 @@ pub(crate) trait JsValue: Sized {
     fn into_string(self) -> Result<String>;
 }
 
-cfg_if::cfg_if! {
+cfg_if! {
     if #[cfg(feature = "quick-js")] {
-        mod quick_js;
+        cfg_if! {
+            if #[cfg(any(unix, all(windows, target_env = "gnu")))] {
+                mod quick_js;
 
-        pub(crate) type Engine = self::quick_js::Engine;
-        pub(crate) type Scope<'a> = self::quick_js::Scope<'a>;
+                pub(crate) type Engine = self::quick_js::Engine;
+                pub(crate) type Scope<'a> = self::quick_js::Scope<'a>;
+            } else {
+                compile_error!("quick-js backend is not support in the current build target.");
+            }
+        }
     } else if #[cfg(feature = "duktape")] {
-        mod duktape;
+        cfg_if! {
+            if #[cfg(any(unix, windows))] {
+                mod duktape;
 
-        pub(crate) type Engine = self::duktape::Engine;
-        pub(crate) type Scope<'a> = self::duktape::Scope<'a>;
+                pub(crate) type Engine = self::duktape::Engine;
+                pub(crate) type Scope<'a> = self::duktape::Scope<'a>;
+            } else {
+                compile_error!("duktape backend is not support in the current build target.");
+            }
+        }
     } else if #[cfg(feature = "wasm-js")] {
-        mod wasm_js;
+        cfg_if! {
+            if #[cfg(all(target_arch = "wasm32", target_os = "unknown"))] {
+                mod wasm_js;
 
-        pub(crate) type Engine = self::wasm_js::Engine;
-        pub(crate) type Scope<'a> = self::wasm_js::Scope<'a>;
+                pub(crate) type Engine = self::wasm_js::Engine;
+                pub(crate) type Scope<'a> = self::wasm_js::Scope<'a>;
+            } else {
+                compile_error!("wasm-js backend is not support in the current build target.");
+            }
+        }
     } else {
         compile_error!("Must enable one of the JS engines.");
     }
