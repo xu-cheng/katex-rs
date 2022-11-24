@@ -2,7 +2,7 @@
 name = "katex"
 version = "0.4.5"
 authors = ["Cheng XU <rust@xuc.me>"]
-edition = "2018"
+edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Rust bindings to KaTeX"
 repository = "https://github.com/xu-cheng/katex-rs"
