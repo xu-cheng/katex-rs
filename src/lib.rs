@@ -31,8 +31,6 @@
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 
-use core::cell::RefCell;
-
 pub mod error;
 pub use error::{Error, Result};
 
@@ -40,7 +38,7 @@ pub mod opts;
 pub use opts::{Opts, OptsBuilder, OutputType};
 
 mod js_engine;
-use js_engine::{Engine, JsEngine, JsScope, JsValue, Scope};
+use js_engine::{Engine, JsEngine, JsValue};
 
 /// JS source code.
 const JS_SRC: &str = concat!(
@@ -63,27 +61,31 @@ const JS_SRC: &str = concat!(
 
 thread_local! {
     /// Per thread JS Engine used to render KaTeX.
-    static KATEX: Result<RefCell<Engine>> = init_katex();
+    static KATEX: Result<Engine> = init_katex();
 }
 
 /// Initialize KaTeX js environment.
-fn init_katex() -> Result<RefCell<Engine>> {
-    let mut engine = Engine::new()?;
-    let scope = Scope::global_scope(&mut engine);
-    scope.eval(JS_SRC)?;
-    Ok(RefCell::new(engine))
+fn init_katex<E>() -> Result<E>
+where
+    E: JsEngine,
+{
+    let engine = E::new()?;
+    engine.eval(JS_SRC)?;
+    Ok(engine)
 }
 
 /// Render LaTeX equation to HTML using specified [engine](`JsEngine`) and [options](`Opts`).
 #[inline]
-fn render_inner(engine: &mut Engine, input: &str, opts: impl AsRef<Opts>) -> Result<String> {
+fn render_inner<E>(engine: &E, input: &str, opts: impl AsRef<Opts>) -> Result<String>
+where
+    E: JsEngine,
+{
     use core::iter;
 
-    let scope = Scope::global_scope(engine);
-    let input = scope.create_string_value(input.to_owned())?;
-    let opts = opts.as_ref().to_js_value(&scope)?;
+    let input = engine.create_string_value(input.to_owned())?;
+    let opts = opts.as_ref().to_js_value(engine)?;
     let args = iter::once(input).chain(iter::once(opts));
-    let result = scope.call_function("katexRenderToString", args)?;
+    let result = engine.call_function("katexRenderToString", args)?;
     result.into_string()
 }
 
@@ -93,7 +95,7 @@ pub fn render_with_opts(input: &str, opts: impl AsRef<Opts>) -> Result<String> {
         engine
             .as_ref()
             .map_err(|e| e.clone())
-            .and_then(|engine| render_inner(&mut engine.borrow_mut(), input, opts))
+            .and_then(|engine| render_inner(engine, input, opts))
     })
 }
 

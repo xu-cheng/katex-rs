@@ -3,41 +3,30 @@
 
 use crate::{
     error::{Error, Result},
-    js_engine::{JsEngine, JsScope, JsValue},
+    js_engine::{JsEngine, JsValue},
 };
-use core::marker::PhantomData;
 
 /// Wasm JS Engine.
 pub struct Engine;
 
 impl JsEngine for Engine {
+    type JsValue<'a> = Value;
+
     fn new() -> Result<Self> {
         Ok(Self)
     }
-}
 
-/// Wasm JS Scope.
-pub struct Scope<'a>(PhantomData<&'a mut Engine>);
-
-impl<'a> JsScope<'a> for Scope<'a> {
-    type JsEngine = Engine;
-    type JsValue = Value;
-
-    fn global_scope(_engine: &'a mut Self::JsEngine) -> Self {
-        Self(PhantomData)
-    }
-
-    fn eval(&'a self, code: &str) -> Result<Self::JsValue> {
+    fn eval<'a>(&'a self, code: &str) -> Result<Self::JsValue<'a>> {
         js_sys::eval(code)
             .map(Value)
             .map_err(|e| Error::JsExecError(format!("{:?}", e)))
     }
 
-    fn call_function(
+    fn call_function<'a>(
         &'a self,
         func_name: &str,
-        args: impl Iterator<Item = Self::JsValue>,
-    ) -> Result<Self::JsValue> {
+        args: impl Iterator<Item = Self::JsValue<'a>>,
+    ) -> Result<Self::JsValue<'a>> {
         let function: js_sys::Function = js_sys::Reflect::get(&js_sys::global(), &func_name.into())
             .map_err(|e| Error::JsExecError(format!("{:?}", e)))?
             .into();
@@ -49,26 +38,26 @@ impl<'a> JsScope<'a> for Scope<'a> {
         Ok(Value(result))
     }
 
-    fn create_bool_value(&'a self, input: bool) -> Result<Self::JsValue> {
+    fn create_bool_value(&self, input: bool) -> Result<Self::JsValue<'_>> {
         Ok(Value(input.into()))
     }
 
-    fn create_int_value(&'a self, input: i32) -> Result<Self::JsValue> {
+    fn create_int_value(&self, input: i32) -> Result<Self::JsValue<'_>> {
         Ok(Value(input.into()))
     }
 
-    fn create_float_value(&'a self, input: f64) -> Result<Self::JsValue> {
+    fn create_float_value(&self, input: f64) -> Result<Self::JsValue<'_>> {
         Ok(Value(input.into()))
     }
 
-    fn create_string_value(&'a self, input: String) -> Result<Self::JsValue> {
+    fn create_string_value(&self, input: String) -> Result<Self::JsValue<'_>> {
         Ok(Value(input.into()))
     }
 
-    fn create_object_value(
+    fn create_object_value<'a>(
         &'a self,
-        input: impl Iterator<Item = (String, Self::JsValue)>,
-    ) -> Result<Self::JsValue> {
+        input: impl Iterator<Item = (String, Self::JsValue<'a>)>,
+    ) -> Result<Self::JsValue<'a>> {
         let obj = js_sys::Object::new();
         for (k, v) in input {
             js_sys::Reflect::set(&obj, &k.into(), &v.0)
@@ -82,7 +71,7 @@ impl<'a> JsScope<'a> for Scope<'a> {
 #[derive(Debug)]
 pub struct Value(wasm_bindgen::JsValue);
 
-impl JsValue for Value {
+impl<'a> JsValue<'a> for Value {
     fn into_string(self) -> Result<String> {
         self.0
             .as_string()

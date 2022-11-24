@@ -2,7 +2,7 @@
 
 use crate::{
     error::{Error, Result},
-    js_engine::{JsEngine, JsScope, JsValue},
+    js_engine::{JsEngine, JsValue},
 };
 use core::fmt;
 use ducc::{FromValue, ToValue};
@@ -11,37 +11,27 @@ use ducc::{FromValue, ToValue};
 pub struct Engine(ducc::Ducc);
 
 impl JsEngine for Engine {
+    type JsValue<'a> = Value<'a>;
+
     fn new() -> Result<Self> {
         Ok(Self(ducc::Ducc::new()))
     }
-}
 
-/// Duktape Scope.
-pub struct Scope<'a>(&'a mut ducc::Ducc);
-
-impl<'a> JsScope<'a> for Scope<'a> {
-    type JsEngine = Engine;
-    type JsValue = Value<'a>;
-
-    fn global_scope(engine: &'a mut Self::JsEngine) -> Self {
-        Self(&mut engine.0)
-    }
-
-    fn eval(&'a self, code: &str) -> Result<Self::JsValue> {
+    fn eval<'a>(&'a self, code: &str) -> Result<Self::JsValue<'a>> {
         let result = self
             .0
             .exec(code, Some("katex"), ducc::ExecSettings::default())?;
         Ok(Value {
             value: result,
-            scope: self,
+            engine: &self.0,
         })
     }
 
-    fn call_function(
+    fn call_function<'a>(
         &'a self,
         func_name: &str,
-        args: impl Iterator<Item = Self::JsValue>,
-    ) -> Result<Self::JsValue> {
+        args: impl Iterator<Item = Self::JsValue<'a>>,
+    ) -> Result<Self::JsValue<'a>> {
         let function = self
             .0
             .globals()
@@ -50,49 +40,49 @@ impl<'a> JsScope<'a> for Scope<'a> {
         let result = function.call(args)?;
         Ok(Value {
             value: result,
-            scope: self,
+            engine: &self.0,
         })
     }
 
-    fn create_bool_value(&'a self, input: bool) -> Result<Self::JsValue> {
+    fn create_bool_value(&self, input: bool) -> Result<Self::JsValue<'_>> {
         Ok(Value {
-            value: input.to_value(self.0)?,
-            scope: self,
+            value: input.to_value(&self.0)?,
+            engine: &self.0,
         })
     }
 
-    fn create_int_value(&'a self, input: i32) -> Result<Self::JsValue> {
+    fn create_int_value(&self, input: i32) -> Result<Self::JsValue<'_>> {
         Ok(Value {
-            value: input.to_value(self.0)?,
-            scope: self,
+            value: input.to_value(&self.0)?,
+            engine: &self.0,
         })
     }
 
-    fn create_float_value(&'a self, input: f64) -> Result<Self::JsValue> {
+    fn create_float_value(&self, input: f64) -> Result<Self::JsValue<'_>> {
         Ok(Value {
-            value: input.to_value(self.0)?,
-            scope: self,
+            value: input.to_value(&self.0)?,
+            engine: &self.0,
         })
     }
 
-    fn create_string_value(&'a self, input: String) -> Result<Self::JsValue> {
+    fn create_string_value(&self, input: String) -> Result<Self::JsValue<'_>> {
         Ok(Value {
-            value: input.to_value(self.0)?,
-            scope: self,
+            value: input.to_value(&self.0)?,
+            engine: &self.0,
         })
     }
 
-    fn create_object_value(
+    fn create_object_value<'a>(
         &'a self,
-        input: impl Iterator<Item = (String, Self::JsValue)>,
-    ) -> Result<Self::JsValue> {
+        input: impl Iterator<Item = (String, Self::JsValue<'a>)>,
+    ) -> Result<Self::JsValue<'a>> {
         let obj = self.0.create_object();
         for (k, v) in input {
             obj.set(k, v.value)?;
         }
         Ok(Value {
             value: ducc::Value::Object(obj),
-            scope: self,
+            engine: &self.0,
         })
     }
 }
@@ -100,12 +90,12 @@ impl<'a> JsScope<'a> for Scope<'a> {
 /// Duktape Value.
 pub struct Value<'a> {
     value: ducc::Value<'a>,
-    scope: &'a Scope<'a>,
+    engine: &'a ducc::Ducc,
 }
 
-impl<'a> JsValue for Value<'a> {
+impl<'a> JsValue<'a> for Value<'a> {
     fn into_string(self) -> Result<String> {
-        Ok(String::from_value(self.value, self.scope.0)?)
+        Ok(String::from_value(self.value, self.engine)?)
     }
 }
 
