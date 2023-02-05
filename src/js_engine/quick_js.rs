@@ -65,18 +65,18 @@ impl<'a> JsValue<'a> for Value {
 
 impl From<quick_js::ContextError> for Error {
     fn from(e: quick_js::ContextError) -> Self {
-        Self::JsInitError(format!("{}", e))
+        Self::JsInitError(format!("{e}"))
     }
 }
 
 impl From<quick_js::ExecutionError> for Error {
     fn from(e: quick_js::ExecutionError) -> Self {
-        Self::JsExecError(format!("{}", e))
+        Self::JsExecError(format!("{e}"))
     }
 }
 
 impl From<quick_js::ValueError> for Error {
     fn from(e: quick_js::ValueError) -> Self {
-        Self::JsValueError(format!("{}", e))
+        Self::JsValueError(format!("{e}"))
     }
 }

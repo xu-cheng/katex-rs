@@ -37,7 +37,7 @@ fn test_passing_opts_by_reference_and_value() {
 #[test]
 fn test_display_mode() {
     let opts = Opts::builder().display_mode(true).build().unwrap();
-    let html = render_with_opts("a = b + c", &opts).unwrap();
+    let html = render_with_opts("a = b + c", opts).unwrap();
     assert!(html.contains(r#"span class="katex-display""#));
 }
 
@@ -47,7 +47,7 @@ fn test_output_html_only() {
         .output_type(OutputType::Html)
         .build()
         .unwrap();
-    let html = render_with_opts("a = b + c", &opts).unwrap();
+    let html = render_with_opts("a = b + c", opts).unwrap();
     assert!(!html.contains(r#"span class="katex-mathml""#));
     assert!(html.contains(r#"span class="katex-html""#));
 }
@@ -58,7 +58,7 @@ fn test_output_mathml_only() {
         .output_type(OutputType::Mathml)
         .build()
         .unwrap();
-    let html = render_with_opts("a = b + c", &opts).unwrap();
+    let html = render_with_opts("a = b + c", opts).unwrap();
     assert!(html.contains(r#"MathML"#));
     assert!(!html.contains(r#"span class="katex-html""#));
 }
@@ -70,7 +70,7 @@ fn test_leqno() {
         .leqno(true)
         .build()
         .unwrap();
-    let html = render_with_opts("a = b + c", &opts).unwrap();
+    let html = render_with_opts("a = b + c", opts).unwrap();
     assert!(html.contains(r#"span class="katex-display leqno""#));
 }
 
@@ -81,7 +81,7 @@ fn test_fleqn() {
         .fleqn(true)
         .build()
         .unwrap();
-    let html = render_with_opts("a = b + c", &opts).unwrap();
+    let html = render_with_opts("a = b + c", opts).unwrap();
     assert!(html.contains(r#"span class="katex-display fleqn""#));
 }
 
@@ -104,7 +104,7 @@ fn test_error_color() {
         .error_color("#ff0000")
         .build()
         .unwrap();
-    let html = render_with_opts(r#"\"#, &opts).unwrap();
+    let html = render_with_opts(r#"\"#, opts).unwrap();
     assert!(html.contains(r#"span class="katex-error""#));
     assert!(html.contains("color:#ff0000"));
 }
@@ -115,14 +115,14 @@ fn test_macros() {
         .add_macro(r#"\RR"#.to_owned(), r#"\mathbb{R}"#.to_owned())
         .build()
         .unwrap();
-    let html = render_with_opts(r#"\RR"#, &opts).unwrap();
+    let html = render_with_opts(r#"\RR"#, opts).unwrap();
     assert!(html.contains("mathbb"));
 }
 
 #[test]
 fn test_trust() {
     let opts = Opts::builder().error_color("#ff0000").build().unwrap();
-    let html = render_with_opts(r#"\url{https://www.google.com}"#, &opts).unwrap();
+    let html = render_with_opts(r#"\url{https://www.google.com}"#, opts).unwrap();
     assert!(html.contains(r#"color:#ff0000"#));
     assert!(!html.contains(r#"a href="https://www.google.com""#));
 
@@ -131,7 +131,7 @@ fn test_trust() {
         .trust(true)
         .build()
         .unwrap();
-    let html = render_with_opts(r#"\url{https://www.google.com}"#, &opts).unwrap();
+    let html = render_with_opts(r#"\url{https://www.google.com}"#, opts).unwrap();
     assert!(!html.contains(r#"color:#ff0000"#));
     assert!(html.contains(r#"a href="https://www.google.com""#));
 }
@@ -160,6 +160,6 @@ fn test_opts_sync_send() {
 
 #[test]
 fn test_katex_version() {
-    assert!(crate::KATEX_VERSION.len() > 0);
-    assert!(!crate::KATEX_VERSION.contains("\n"));
+    assert!(!crate::KATEX_VERSION.is_empty());
+    assert!(!crate::KATEX_VERSION.contains('\n'));
 }
