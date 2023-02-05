@@ -40,6 +40,9 @@ pub use opts::{Opts, OptsBuilder, OutputType};
 mod js_engine;
 use js_engine::{Engine, JsEngine, JsValue};
 
+/// KaTeX version.
+pub const KATEX_VERSION: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/KATEX-VERSION"));
+
 /// JS source code.
 const JS_SRC: &str = concat!(
     // HACK to load KaTeX code in Node.js

@@ -157,3 +157,9 @@ fn test_opts_sync_send() {
     let opts = Opts::builder().build().unwrap();
     is_sync_send(opts);
 }
+
+#[test]
+fn test_katex_version() {
+    assert!(crate::KATEX_VERSION.len() > 0);
+    assert!(!crate::KATEX_VERSION.contains("\n"));
+}
