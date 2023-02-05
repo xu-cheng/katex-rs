@@ -111,9 +111,9 @@ impl From<ducc::Error> for Error {
 
         match e.kind {
             ErrorKind::ToJsConversionError { .. } | ErrorKind::FromJsConversionError { .. } => {
-                Self::JsValueError(format!("{}", e))
+                Self::JsValueError(format!("{e}"))
             }
-            _ => Self::JsExecError(format!("{}", e)),
+            _ => Self::JsExecError(format!("{e}")),
         }
     }
 }

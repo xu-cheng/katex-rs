@@ -19,7 +19,7 @@ impl JsEngine for Engine {
     fn eval<'a>(&'a self, code: &str) -> Result<Self::JsValue<'a>> {
         js_sys::eval(code)
             .map(Value)
-            .map_err(|e| Error::JsExecError(format!("{:?}", e)))
+            .map_err(|e| Error::JsExecError(format!("{e:?}")))
     }
 
     fn call_function<'a>(
@@ -28,13 +28,13 @@ impl JsEngine for Engine {
         args: impl Iterator<Item = Self::JsValue<'a>>,
     ) -> Result<Self::JsValue<'a>> {
         let function: js_sys::Function = js_sys::Reflect::get(&js_sys::global(), &func_name.into())
-            .map_err(|e| Error::JsExecError(format!("{:?}", e)))?
+            .map_err(|e| Error::JsExecError(format!("{e:?}")))?
             .into();
 
         let args: js_sys::Array = args.map(|v| v.0).collect();
         let result = function
             .apply(&wasm_bindgen::JsValue::NULL, &args)
-            .map_err(|e| Error::JsExecError(format!("{:?}", e)))?;
+            .map_err(|e| Error::JsExecError(format!("{e:?}")))?;
         Ok(Value(result))
     }
 
@@ -61,7 +61,7 @@ impl JsEngine for Engine {
         let obj = js_sys::Object::new();
         for (k, v) in input {
             js_sys::Reflect::set(&obj, &k.into(), &v.0)
-                .map_err(|e| Error::JsValueError(format!("{:?}", e)))?;
+                .map_err(|e| Error::JsValueError(format!("{e:?}")))?;
         }
         Ok(Value(obj.into()))
     }
