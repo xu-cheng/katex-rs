@@ -34,6 +34,10 @@ let opts = katex::Opts::builder().display_mode(true).build().unwrap();
 let html_in_display_mode = katex::render_with_opts("E = mc^2", &opts).unwrap();
 ```
 
+## See Also
+
+* [pandoc-katex](https://github.com/xu-cheng/pandoc-katex)
+
 ## License
 
 <sup>
