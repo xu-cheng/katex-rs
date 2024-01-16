@@ -22,6 +22,10 @@ thiserror = "1.0"
 [target.'cfg(any(unix, all(windows, target_env = "gnu")))'.dependencies]
 quick-js = { version = "0.4", features = ["patched"], optional = true }
 
+# quickjs_runtime is available in unix
+[target.'cfg(any(unix))'.dependencies]
+quickjs_runtime = { version = "0.12.0", optional = true }
+
 # duktape is available in unix and windows
 [target.'cfg(any(unix, windows))'.dependencies]
 ducc = { version = "0.1", optional = true }
@@ -36,6 +40,7 @@ wasm-bindgen-test = "0.3"
 [features]
 default = ["quick-js"]
 quick-js = ["dep:quick-js"]
+quickjs_runtime = ["dep:quickjs_runtime"]
 duktape = ["dep:ducc"]
 wasm-js = ["dep:wasm-bindgen", "dep:js-sys"]
 wasm-js-test-in-browser = []
