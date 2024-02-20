@@ -61,7 +61,7 @@ cfg_if! {
         }
     } else if #[cfg(feature = "quickjs_runtime")] {
         cfg_if! {
-            if #[cfg(any(unix))] {
+            if #[cfg(any(unix, all(windows, target_env = "gnu")))] {
                 mod quickjs_runtime;
 
                 pub(crate) type Engine = self::quickjs_runtime::Engine;
