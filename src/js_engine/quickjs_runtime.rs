@@ -75,7 +75,7 @@ pub struct Value(JsValueFacade);
 
 impl<'a> JsValue<'a> for Value {
     fn into_string(self) -> Result<String> {
-        Ok(self.0.stringify())
+        Ok(self.0.get_str().to_string())
     }
 }
 
