@@ -21,6 +21,7 @@ thiserror = "1.0"
 # quick-js is available in unix and x86_64-pc-windows-gnu
 [target.'cfg(any(unix, all(windows, target_env = "gnu")))'.dependencies]
 quick-js = { version = "0.4", features = ["patched"], optional = true }
+quickjs_runtime = { version = "0.13.3", default-features = false, features = ["bellard", "console", "setimmediate", "setinterval", "settimeout"], optional = true }
 
 # duktape is available in unix and windows
 [target.'cfg(any(unix, windows))'.dependencies]
@@ -36,6 +37,7 @@ wasm-bindgen-test = "0.3"
 [features]
 default = ["quick-js"]
 quick-js = ["dep:quick-js"]
+quickjs_runtime = ["dep:quickjs_runtime"]
 duktape = ["dep:ducc"]
 wasm-js = ["dep:wasm-bindgen", "dep:js-sys"]
 wasm-js-test-in-browser = []

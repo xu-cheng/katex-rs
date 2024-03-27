@@ -59,6 +59,16 @@ cfg_if! {
                 compile_error!("quick-js backend is not support in the current build target.");
             }
         }
+    } else if #[cfg(feature = "quickjs_runtime")] {
+        cfg_if! {
+            if #[cfg(any(unix, all(windows, target_env = "gnu")))] {
+                mod quickjs_runtime;
+
+                pub(crate) type Engine = self::quickjs_runtime::Engine;
+            } else {
+                compile_error!("quickjs_runtime backend is not support in the current build target.");
+            }
+        }
     } else if #[cfg(feature = "duktape")] {
         cfg_if! {
             if #[cfg(any(unix, windows))] {
